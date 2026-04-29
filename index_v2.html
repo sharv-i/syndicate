@@ -1,0 +1,3291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYNDICATE — Who Do You Trust?</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080608;
+  --surface: #0f0d10;
+  --card: #140e15;
+  --border: #2a1a2a;
+  --red: #c0392b;
+  --red-glow: #e74c3c;
+  --red-dim: #7b1a14;
+  --gold: #c9a84c;
+  --text: #e8dde8;
+  --muted: #6b5c6e;
+  --safe: #1a6b3a;
+  --safe-glow: #27ae60;
+  --danger: #c0392b;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* Animated blood drip background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--red), var(--red-glow), var(--red), transparent);
+  z-index: 100;
+  box-shadow: 0 0 20px rgba(192,57,43,0.8);
+}
+
+/* Scanline effect */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Particles canvas */
+#particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+/* NAV */
+nav {
+  position: relative; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(8,6,8,0.9);
+  backdrop-filter: blur(10px);
+}
+
+.logo {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: 1.6rem;
+  letter-spacing: 0.25em;
+  color: var(--red-glow);
+  text-shadow: 0 0 30px rgba(231,76,60,0.6), 0 0 60px rgba(231,76,60,0.2);
+  position: relative;
+}
+.logo::after {
+  content: 'WHO DO YOU TRUST?';
+  display: block;
+  font-size: 0.45rem;
+  letter-spacing: 0.5em;
+  color: var(--muted);
+  font-weight: 400;
+  margin-top: 2px;
+  text-shadow: none;
+}
+
+.nav-right { display: flex; align-items: center; gap: 16px; }
+
+.live-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(192,57,43,0.15);
+  border: 1px solid rgba(192,57,43,0.4);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--red-glow);
+  letter-spacing: 0.1em;
+}
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red-glow);
+  animation: pulse-dot 1.2s ease infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.4; transform:scale(0.7); }
+}
+
+.nav-btn {
+  padding: 7px 18px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: all 0.2s;
+}
+.nav-btn:hover { border-color: var(--red); color: var(--red-glow); }
+.nav-btn.primary {
+  border-color: var(--red);
+  color: var(--red-glow);
+  background: rgba(192,57,43,0.1);
+  box-shadow: 0 0 12px rgba(192,57,43,0.15);
+}
+.nav-btn.primary:hover { background: rgba(192,57,43,0.2); box-shadow: 0 0 20px rgba(192,57,43,0.3); }
+
+/* HERO */
+.hero {
+  position: relative; z-index: 5;
+  text-align: center;
+  padding: 5rem 2rem 3rem;
+}
+
+.hero-eyebrow {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--red-dim);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  animation: fadeIn 1s ease 0.2s both;
+}
+
+.hero-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: 0.06em;
+  margin-bottom: 1.5rem;
+  animation: fadeIn 1s ease 0.4s both;
+}
+
+.hero-title .line1 { color: var(--text); display: block; }
+.hero-title .line2 {
+  color: var(--red-glow);
+  display: block;
+  text-shadow: 0 0 40px rgba(231,76,60,0.5), 0 0 80px rgba(231,76,60,0.2);
+}
+
+.hero-sub {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--muted);
+  max-width: 480px;
+  margin: 0 auto 3rem;
+  line-height: 1.7;
+  animation: fadeIn 1s ease 0.6s both;
+}
+
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(16px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.hero-cta {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  animation: fadeIn 1s ease 0.8s both;
+  flex-wrap: wrap;
+}
+
+.btn-play {
+  padding: 14px 40px;
+  background: var(--red);
+  border: none;
+  border-radius: 3px;
+  color: #fff;
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 30px rgba(192,57,43,0.4), 0 4px 20px rgba(192,57,43,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.btn-play::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+}
+.btn-play:hover { background: var(--red-glow); transform: translateY(-2px); box-shadow: 0 0 50px rgba(231,76,60,0.6), 0 6px 30px rgba(231,76,60,0.4); }
+.btn-play:active { transform: translateY(0); }
+
+.btn-watch {
+  padding: 14px 28px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-watch:hover { border-color: var(--muted); color: var(--text); }
+
+/* LIVE GAME PREVIEW */
+.section { position: relative; z-index: 5; padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+.section-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: var(--red-dim);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  letter-spacing: 0.1em;
+}
+
+/* Live room preview */
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.room-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.room-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--red);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+.room-card:hover { border-color: var(--red-dim); transform: translateY(-2px); }
+.room-card:hover::before { transform: scaleX(1); }
+
+.room-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+.room-name { font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700; letter-spacing: 0.08em; }
+.room-status {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+.status-waiting { background: rgba(26,107,58,0.2); color: var(--safe-glow); border: 1px solid rgba(26,107,58,0.4); }
+.status-live { background: rgba(192,57,43,0.2); color: var(--red-glow); border: 1px solid rgba(192,57,43,0.4); }
+.status-voting { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+
+.room-players {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem;
+}
+
+.player-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Share Tech Mono', monospace;
+  border: 1px solid;
+  position: relative;
+}
+.player-dot.alive { background: rgba(255,255,255,0.06); border-color: var(--muted); color: var(--text); }
+.player-dot.traitor { background: rgba(192,57,43,0.2); border-color: var(--red-dim); color: var(--red-glow); }
+.player-dot.dead {
+  background: rgba(0,0,0,0.3);
+  border-color: #1a1a1a;
+  color: #333;
+  text-decoration: line-through;
+}
+.player-dot.traitor::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid var(--red);
+  opacity: 0.4;
+  animation: traitor-ring 2s ease infinite;
+}
+@keyframes traitor-ring {
+  0%,100% { transform: scale(1); opacity:0.4; }
+  50% { transform: scale(1.2); opacity:0; }
+}
+
+.room-meta {
+  display: flex; justify-content: space-between;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+.join-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 9px;
+  background: rgba(192,57,43,0.12);
+  border: 1px solid var(--red-dim);
+  border-radius: 3px;
+  color: var(--red-glow);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.join-btn:hover { background: rgba(192,57,43,0.25); }
+.join-btn:disabled {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* HOW IT WORKS */
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.how-step {
+  background: var(--card);
+  padding: 2rem 1.5rem;
+  position: relative;
+}
+
+.step-num {
+  font-family: 'Cinzel', serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--border);
+  line-height: 1;
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.step-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+.step-desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.step-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+/* ROLES SECTION */
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.role-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  transition: all 0.3s;
+}
+.role-card:hover { transform: translateY(-4px); }
+
+.role-card.traitor-card { border-color: var(--red-dim); }
+.role-card.traitor-card:hover { box-shadow: 0 0 30px rgba(192,57,43,0.2); }
+.role-card.ally-card { border-color: #1a3a2a; }
+.role-card.ally-card:hover { box-shadow: 0 0 30px rgba(39,174,96,0.1); }
+.role-card.ghost-card { border-color: #2a2a3a; }
+
+.role-icon { font-size: 2rem; margin-bottom: 0.75rem; display: block; }
+.role-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+.role-card.traitor-card .role-name { color: var(--red-glow); }
+.role-card.ally-card .role-name { color: var(--safe-glow); }
+.role-card.ghost-card .role-name { color: var(--muted); }
+.role-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; font-style: italic; }
+
+/* RULES SECTION */
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 12px;
+}
+.rule-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red-dim);
+  border-radius: 6px;
+  padding: 1.4rem 1.4rem 1.2rem;
+  position: relative;
+  transition: all 0.25s;
+}
+.rule-card:hover {
+  border-left-color: var(--red);
+  transform: translateX(2px);
+  box-shadow: -3px 0 24px rgba(192,57,43,0.15);
+}
+.rule-card.crimson { border-left-color: var(--red); }
+.rule-card.gold { border-left-color: var(--gold); }
+.rule-card.gold:hover { box-shadow: -3px 0 24px rgba(201,168,76,0.15); }
+.rule-card.violet { border-left-color: #6b5ca0; }
+.rule-card.violet:hover { box-shadow: -3px 0 24px rgba(155,142,196,0.15); }
+.rule-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.rule-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.rule-title .ic { font-size: 1.2rem; }
+.rule-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.rule-list li {
+  font-size: 0.92rem;
+  color: var(--muted);
+  line-height: 1.55;
+  padding: 5px 0 5px 18px;
+  position: relative;
+  font-style: italic;
+}
+.rule-list li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  top: 5px;
+  color: var(--red-dim);
+  font-style: normal;
+  font-weight: 700;
+}
+.rule-list li strong {
+  color: var(--text);
+  font-style: normal;
+  font-weight: 600;
+}
+.rule-list li em {
+  color: var(--red-glow);
+  font-style: normal;
+}
+.rules-quote {
+  margin-top: 2rem;
+  padding: 1.5rem 2rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-align: center;
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--text);
+  position: relative;
+}
+.rules-quote::before, .rules-quote::after {
+  content: '"';
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem;
+  color: var(--red);
+  position: absolute;
+  line-height: 1;
+}
+.rules-quote::before { top: 8px; left: 16px; }
+.rules-quote::after { bottom: -8px; right: 16px; }
+.rules-quote .attr {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--red-dim);
+}
+
+/* LEADERBOARD */
+.leaderboard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.lb-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 80px 80px 80px;
+  gap: 0;
+  padding: 10px 1.25rem;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.lb-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 80px 80px 80px;
+  padding: 12px 1.25rem;
+  border-bottom: 1px solid rgba(42,26,42,0.5);
+  align-items: center;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.lb-row:hover { background: rgba(255,255,255,0.02); }
+.lb-row:last-child { border-bottom: none; }
+
+.lb-rank {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.lb-row:nth-child(1) .lb-rank { color: var(--gold); text-shadow: 0 0 10px rgba(201,168,76,0.4); }
+.lb-row:nth-child(2) .lb-rank { color: #9ca3af; }
+.lb-row:nth-child(3) .lb-rank { color: #b87333; }
+
+.lb-player { display: flex; align-items: center; gap: 10px; }
+.lb-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+.lb-name { font-size: 0.9rem; }
+.lb-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+.lb-val.highlight { color: var(--red-glow); }
+
+/* STATS STRIP */
+.stats-strip {
+  position: relative; z-index: 5;
+  display: flex; justify-content: center;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+  overflow: hidden;
+}
+
+.stat-item {
+  flex: 1;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  border-right: 1px solid var(--border);
+  max-width: 200px;
+}
+.stat-item:last-child { border-right: none; }
+
+.stat-big {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--red-glow);
+  text-shadow: 0 0 20px rgba(231,76,60,0.3);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-small {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* FOOTER */
+footer {
+  position: relative; z-index: 5;
+  padding: 2rem 2.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.footer-logo { font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700; letter-spacing: 0.2em; color: var(--red-dim); }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 0.08em; transition: color 0.15s; }
+.footer-links a:hover { color: var(--red-glow); }
+
+/* Modal */
+#modal {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(8,6,8,0.92);
+  backdrop-filter: blur(12px);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+#modal.show { display: flex; }
+
+.modal-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2.5rem;
+  width: 90%;
+  max-width: 440px;
+  animation: slideUp 0.3s ease;
+  position: relative;
+}
+@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+.modal-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: none; color: var(--muted);
+  font-size: 1.2rem; cursor: pointer;
+}
+.modal-close:hover { color: var(--text); }
+
+.modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--red-glow);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 20px rgba(231,76,60,0.4);
+}
+.modal-sub { font-size: 0.9rem; color: var(--muted); font-style: italic; margin-bottom: 2rem; }
+
+.form-group { margin-bottom: 1rem; }
+.form-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--muted); display: block; margin-bottom: 6px; }
+.form-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--red-dim); }
+
+.avatar-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.av-opt {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.av-opt:hover, .av-opt.selected { border-color: var(--red); background: rgba(192,57,43,0.15); }
+
+.mode-select { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+.mode-opt {
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-opt:hover, .mode-opt.selected { border-color: var(--red); background: rgba(192,57,43,0.1); }
+.mode-opt-title { font-family: 'Cinzel', serif; font-size: 0.8rem; font-weight: 700; color: var(--text); }
+.mode-opt-desc { font-size: 0.72rem; color: var(--muted); margin-top: 2px; font-style: italic; }
+
+.enter-btn {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 13px;
+  background: var(--red);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 20px rgba(192,57,43,0.3);
+}
+.enter-btn:hover { background: var(--red-glow); box-shadow: 0 0 40px rgba(231,76,60,0.5); }
+
+/* Divider */
+.divider {
+  position: relative; z-index: 5;
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 2rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ==================================================================== */
+/* GAME UI — additions only, do not modify the styles above             */
+/* ==================================================================== */
+
+#game-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  flex-direction: column;
+}
+#game-screen.show { display: flex; }
+
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(8,6,8,0.95);
+  backdrop-filter: blur(10px);
+}
+.gh-left, .gh-right { display: flex; align-items: center; gap: 14px; }
+.gh-logo {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: 0.25em;
+  color: var(--red-glow);
+  text-shadow: 0 0 20px rgba(231,76,60,0.5);
+}
+.gh-room {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  padding-left: 14px;
+  border-left: 1px solid var(--border);
+}
+.phase-badge {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px;
+  border-radius: 3px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  border: 1px solid;
+}
+.phase-badge.day {
+  background: rgba(201,168,76,0.12);
+  color: var(--gold);
+  border-color: rgba(201,168,76,0.4);
+  box-shadow: 0 0 18px rgba(201,168,76,0.18);
+}
+.phase-badge.night {
+  background: rgba(40,30,80,0.25);
+  color: #9b8ec4;
+  border-color: rgba(155,142,196,0.4);
+  box-shadow: 0 0 18px rgba(155,142,196,0.2);
+}
+.phase-badge.vote {
+  background: rgba(192,57,43,0.15);
+  color: var(--red-glow);
+  border-color: rgba(192,57,43,0.5);
+  box-shadow: 0 0 18px rgba(231,76,60,0.25);
+}
+.timer {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  letter-spacing: 0.15em;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--card);
+  min-width: 70px;
+  text-align: center;
+}
+.timer.urgent { color: var(--red-glow); border-color: var(--red-dim); animation: timer-pulse 0.6s ease infinite alternate; }
+@keyframes timer-pulse {
+  from { box-shadow: 0 0 0 rgba(231,76,60,0); }
+  to { box-shadow: 0 0 16px rgba(231,76,60,0.5); }
+}
+.day-counter {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.2em;
+}
+
+.game-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  gap: 1px;
+  background: var(--border);
+  overflow: hidden;
+  min-height: 0;
+}
+@media (max-width: 1100px) {
+  .game-body { grid-template-columns: 220px 1fr 280px; }
+}
+@media (max-width: 900px) {
+  .game-body { grid-template-columns: 180px 1fr 240px; }
+}
+
+.panel {
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.panel-header {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--red-dim);
+  text-transform: uppercase;
+}
+
+/* LEFT — players */
+.players-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+.player-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  position: relative;
+}
+.player-row.alive { background: rgba(255,255,255,0.02); }
+.player-row.alive:hover { background: rgba(255,255,255,0.05); border-color: var(--border); }
+.player-row.dead { opacity: 0.4; }
+.player-row.dead .player-name { text-decoration: line-through; }
+.player-row.you {
+  border-color: rgba(201,168,76,0.4);
+  background: rgba(201,168,76,0.06);
+}
+.player-row.fellow-traitor {
+  border-color: rgba(192,57,43,0.4);
+  background: rgba(192,57,43,0.08);
+}
+.player-row.suspected { border-color: var(--red-dim); }
+.player-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.player-row.dead .player-avatar { filter: grayscale(1); }
+.player-info { flex: 1; min-width: 0; }
+.player-name {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--text);
+  letter-spacing: 0.08em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.player-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  margin-top: 2px;
+}
+.player-row.you .player-tag { color: var(--gold); }
+.player-row.fellow-traitor .player-tag { color: var(--red-glow); }
+.player-row.dead .player-tag { color: #555; }
+.player-status {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.status-alive { color: var(--safe-glow); border: 1px solid rgba(39,174,96,0.3); }
+.status-dead { color: #555; border: 1px solid #1a1a1a; }
+
+/* Heat meter */
+.heat-bar {
+  margin-top: 5px;
+  height: 3px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.heat-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.5s ease, background 0.5s ease, box-shadow 0.5s ease;
+}
+.heat-fill.cool { background: #2d6b4a; }
+.heat-fill.warm { background: #c9a84c; box-shadow: 0 0 6px rgba(201,168,76,0.5); }
+.heat-fill.hot  { background: var(--red-glow); box-shadow: 0 0 10px rgba(231,76,60,0.7); }
+.heat-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+.heat-label.warm { color: var(--gold); }
+.heat-label.hot  { color: var(--red-glow); }
+
+/* CENTER — chat */
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.msg {
+  max-width: 70%;
+  animation: msgIn 0.25s ease;
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.msg-author {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.msg-author .av { font-size: 12px; }
+.msg-bubble {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+.msg.you { align-self: flex-end; }
+.msg.you .msg-author { color: var(--gold); justify-content: flex-end; }
+.msg.you .msg-bubble {
+  background: rgba(201,168,76,0.08);
+  border-color: rgba(201,168,76,0.3);
+}
+.msg.system {
+  align-self: center;
+  max-width: 85%;
+  text-align: center;
+}
+.msg.system .msg-bubble {
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  font-style: italic;
+  font-size: 0.88rem;
+  letter-spacing: 0.05em;
+}
+.msg.system.kill .msg-bubble { color: var(--red-glow); border-color: var(--red-dim); }
+.msg.system.reveal .msg-bubble { color: var(--gold); border-color: rgba(201,168,76,0.4); }
+.msg.system.whisper .msg-bubble { color: #9b8ec4; border-color: rgba(155,142,196,0.4); }
+
+.chat-input-bar {
+  display: flex;
+  gap: 8px;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+}
+.chat-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.chat-input:focus { border-color: var(--red-dim); }
+.chat-input:disabled { opacity: 0.4; cursor: not-allowed; }
+.chat-send {
+  padding: 10px 20px;
+  background: var(--red);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chat-send:hover { background: var(--red-glow); }
+.chat-send:disabled { opacity: 0.4; cursor: not-allowed; background: var(--border); }
+
+/* RIGHT — role + actions + log */
+.role-card-game {
+  margin: 0.85rem;
+  padding: 1.1rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-align: center;
+}
+.role-card-game.traitor { border-color: var(--red-dim); box-shadow: 0 0 24px rgba(192,57,43,0.2); }
+.role-card-game.loyalist { border-color: rgba(39,174,96,0.4); box-shadow: 0 0 24px rgba(39,174,96,0.15); }
+.role-card-game.oracle { border-color: rgba(155,142,196,0.4); box-shadow: 0 0 24px rgba(155,142,196,0.18); }
+.role-card-game.medium { border-color: rgba(122,184,122,0.4); box-shadow: 0 0 24px rgba(122,184,122,0.15); }
+.role-card-game.arbiter { border-color: rgba(201,168,76,0.4); box-shadow: 0 0 24px rgba(201,168,76,0.18); }
+.role-card-game.role-spectator { border-color: rgba(155,142,196,0.5); box-shadow: 0 0 30px rgba(107,92,160,0.25); background: linear-gradient(135deg, rgba(107,92,160,0.08), rgba(0,0,0,0.4)); }
+.role-card-game.role-spectator .role-name-game { color: #b8a8e0; }
+.role-icon-game { font-size: 2rem; display: block; margin-bottom: 6px; }
+.role-name-game {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  margin-bottom: 6px;
+}
+.role-card-game.traitor .role-name-game { color: var(--red-glow); }
+.role-card-game.loyalist .role-name-game { color: var(--safe-glow); }
+.role-card-game.oracle .role-name-game { color: #9b8ec4; }
+.role-card-game.medium .role-name-game { color: #7ab87a; }
+.role-card-game.arbiter .role-name-game { color: var(--gold); }
+.role-desc-game {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.45;
+}
+
+.action-buttons {
+  padding: 0 0.85rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.action-btn {
+  width: 100%;
+  padding: 11px;
+  background: rgba(192,57,43,0.12);
+  border: 1px solid var(--red-dim);
+  border-radius: 4px;
+  color: var(--red-glow);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.action-btn:hover { background: rgba(192,57,43,0.25); box-shadow: 0 0 16px rgba(231,76,60,0.25); }
+.action-btn:disabled {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.action-btn.gold { background: rgba(201,168,76,0.1); border-color: rgba(201,168,76,0.4); color: var(--gold); }
+.action-btn.gold:hover { background: rgba(201,168,76,0.18); box-shadow: 0 0 16px rgba(201,168,76,0.25); }
+
+.game-log-panel {
+  flex: 1;
+  margin: 0.5rem 0.85rem 0.85rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.game-log-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--red-dim);
+}
+.game-log-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--muted);
+  font-style: italic;
+}
+.game-log-list .log-entry {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(42,26,42,0.4);
+}
+.game-log-list .log-entry:last-child { border-bottom: none; }
+.game-log-list .log-entry.kill { color: var(--red-glow); font-style: normal; }
+.game-log-list .log-entry.banish { color: var(--gold); font-style: normal; }
+
+/* Vote overlay */
+#vote-overlay, #night-overlay, #gameover-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  background: rgba(8,6,8,0.94);
+  backdrop-filter: blur(14px);
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+#vote-overlay.show, #night-overlay.show, #gameover-overlay.show { display: flex; }
+
+.overlay-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+.overlay-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.overlay-sub {
+  text-align: center;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+#vote-overlay .overlay-title { color: var(--red-glow); text-shadow: 0 0 30px rgba(231,76,60,0.4); }
+#night-overlay .overlay-title { color: #9b8ec4; text-shadow: 0 0 30px rgba(155,142,196,0.4); }
+
+.vote-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+.vote-target {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.vote-target:hover { border-color: var(--red); background: rgba(192,57,43,0.1); transform: translateY(-2px); }
+.vote-target.selected {
+  border-color: var(--red);
+  background: rgba(192,57,43,0.2);
+  box-shadow: 0 0 20px rgba(231,76,60,0.3);
+}
+.vote-target .av { font-size: 1.6rem; display: block; margin-bottom: 6px; }
+.vote-target .nm {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+.overlay-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+.confirm-btn {
+  padding: 12px 32px;
+  background: var(--red);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 20px rgba(192,57,43,0.3);
+}
+.confirm-btn:hover { background: var(--red-glow); box-shadow: 0 0 30px rgba(231,76,60,0.5); }
+.confirm-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; box-shadow: none; }
+.skip-btn {
+  padding: 12px 28px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.skip-btn:hover { border-color: var(--muted); color: var(--text); }
+
+#night-overlay .overlay-box { max-width: 520px; }
+.sleep-msg {
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin: 2rem 0;
+  font-style: italic;
+  letter-spacing: 0.1em;
+}
+.moon-icon {
+  font-size: 4rem;
+  text-align: center;
+  display: block;
+  margin: 1rem 0;
+  animation: moon-float 4s ease infinite alternate;
+}
+@keyframes moon-float {
+  from { transform: translateY(0); opacity: 0.7; }
+  to { transform: translateY(-8px); opacity: 1; }
+}
+
+/* Game over */
+#gameover-overlay .overlay-box { max-width: 720px; padding: 2.5rem; }
+.gameover-title {
+  font-family: 'Cinzel', serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: 0.25em;
+  margin-bottom: 8px;
+  animation: titleIn 0.8s ease;
+}
+@keyframes titleIn {
+  from { opacity: 0; transform: scale(0.85); letter-spacing: 0.5em; }
+  to { opacity: 1; transform: scale(1); letter-spacing: 0.25em; }
+}
+.gameover-title.loyalist-win { color: var(--safe-glow); text-shadow: 0 0 40px rgba(39,174,96,0.5); }
+.gameover-title.traitor-win { color: var(--red-glow); text-shadow: 0 0 40px rgba(231,76,60,0.5); }
+.gameover-sub {
+  text-align: center;
+  font-style: italic;
+  color: var(--muted);
+  margin-bottom: 2rem;
+  font-size: 1.05rem;
+}
+.reveal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+.reveal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 10px;
+  text-align: center;
+}
+.reveal-card.traitor { border-color: var(--red-dim); background: rgba(192,57,43,0.08); }
+.reveal-card.loyalist { border-color: rgba(39,174,96,0.3); background: rgba(39,174,96,0.05); }
+.reveal-card.oracle { border-color: rgba(155,142,196,0.3); background: rgba(155,142,196,0.05); }
+.reveal-card.medium { border-color: rgba(122,184,122,0.3); background: rgba(122,184,122,0.05); }
+.reveal-card.arbiter { border-color: rgba(201,168,76,0.3); background: rgba(201,168,76,0.05); }
+.reveal-card.dead { opacity: 0.55; }
+.reveal-av { font-size: 1.7rem; display: block; margin-bottom: 4px; }
+.reveal-nm {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.reveal-card.dead .reveal-nm { text-decoration: line-through; color: var(--muted); }
+.reveal-rl {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+.reveal-card.traitor .reveal-rl { color: var(--red-glow); }
+.reveal-card.loyalist .reveal-rl { color: var(--safe-glow); }
+.reveal-card.oracle .reveal-rl { color: #9b8ec4; }
+.reveal-card.medium .reveal-rl { color: #7ab87a; }
+.reveal-card.arbiter .reveal-rl { color: var(--gold); }
+
+.gameover-actions { display: flex; gap: 10px; justify-content: center; }
+
+/* Phase transition flash */
+#phase-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 700;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  background: rgba(8,6,8,0.85);
+  transition: opacity 0.3s ease;
+}
+#phase-flash.show { opacity: 1; }
+.phase-flash-text {
+  font-family: 'Cinzel', serif;
+  font-size: 4rem;
+  font-weight: 900;
+  letter-spacing: 0.4em;
+  text-align: center;
+}
+.phase-flash-text.day { color: var(--gold); text-shadow: 0 0 60px rgba(201,168,76,0.6); }
+.phase-flash-text.night { color: #9b8ec4; text-shadow: 0 0 60px rgba(155,142,196,0.6); }
+.phase-flash-text.vote { color: var(--red-glow); text-shadow: 0 0 60px rgba(231,76,60,0.6); }
+
+/* Last words overlay */
+#lastwords-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 620;
+  background: rgba(8,6,8,0.94);
+  backdrop-filter: blur(14px);
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+#lastwords-overlay.show { display: flex; }
+.lw-box {
+  background: var(--card);
+  border: 1px solid var(--red-dim);
+  box-shadow: 0 0 50px rgba(192,57,43,0.35);
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 560px;
+  width: 100%;
+  text-align: center;
+  animation: slideUp 0.3s ease;
+}
+.lw-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--red-glow);
+  text-shadow: 0 0 30px rgba(231,76,60,0.45);
+  margin-bottom: 6px;
+}
+.lw-sub {
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+.lw-victim {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin-bottom: 1.25rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  color: var(--text);
+}
+.lw-victim .av { font-size: 1.6rem; }
+.lw-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--red-dim);
+  border-radius: 4px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  margin-bottom: 1rem;
+}
+.lw-input:focus { border-color: var(--red); box-shadow: 0 0 16px rgba(231,76,60,0.3); }
+.lw-countdown {
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--red-glow);
+  text-shadow: 0 0 30px rgba(231,76,60,0.5);
+  margin-bottom: 0.75rem;
+  line-height: 1;
+}
+.lw-countdown.urgent { animation: timer-pulse 0.4s ease infinite alternate; }
+.lw-actions { display: flex; gap: 10px; justify-content: center; }
+.lw-ai-line {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  border-radius: 4px;
+  padding: 14px 18px;
+  margin: 1rem 0 1.25rem;
+  text-align: left;
+  line-height: 1.5;
+}
+.lw-ai-line::before { content: '"'; color: var(--red-glow); font-size: 1.3rem; }
+.lw-ai-line::after { content: '"'; color: var(--red-glow); font-size: 1.3rem; }
+
+/* Reveal toast (oracle peek result) */
+#reveal-toast {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 650;
+  background: var(--card);
+  border: 1px solid rgba(155,142,196,0.5);
+  box-shadow: 0 0 30px rgba(155,142,196,0.3);
+  border-radius: 6px;
+  padding: 14px 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  color: #c4b8e0;
+  animation: slideUp 0.3s ease;
+}
+#reveal-toast.show { display: block; }
+#reveal-toast strong { color: #fff; }
+#reveal-toast .role-tag.t { color: var(--red-glow); }
+#reveal-toast .role-tag.l { color: var(--safe-glow); }
+
+/* Scrollbars */
+.players-list::-webkit-scrollbar,
+.chat-area::-webkit-scrollbar,
+.game-log-list::-webkit-scrollbar,
+.overlay-box::-webkit-scrollbar { width: 6px; }
+.players-list::-webkit-scrollbar-thumb,
+.chat-area::-webkit-scrollbar-thumb,
+.game-log-list::-webkit-scrollbar-thumb,
+.overlay-box::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.players-list::-webkit-scrollbar-track,
+.chat-area::-webkit-scrollbar-track,
+.game-log-list::-webkit-scrollbar-track,
+.overlay-box::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<div id="landing">
+<nav>
+  <div class="logo">SYNDICATE</div>
+  <div class="nav-right">
+    <div class="live-badge"><div class="live-dot"></div> 2,847 ONLINE</div>
+    <button class="nav-btn" onclick="showModal()">SIGN IN</button>
+    <button class="nav-btn primary" onclick="showModal()">ENTER THE GAME</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">Social Deduction · Real-Time · No Mercy</div>
+  <h1 class="hero-title">
+    <span class="line1">TRUST NO ONE.</span>
+    <span class="line2">SURVIVE EVERYONE.</span>
+  </h1>
+  <p class="hero-sub">Up to 12 players. Hidden traitors. Paranoia as a weapon. Every vote could save you — or seal your fate.</p>
+  <div class="hero-cta">
+    <button class="btn-play" onclick="showModal()">ENTER THE DARK</button>
+    <button class="btn-watch" onclick="watchRandomGame()">👁 WATCH A LIVE GAME</button>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div class="stat-item"><div class="stat-big" id="c1">2,847</div><div class="stat-small">Players Online</div></div>
+  <div class="stat-item"><div class="stat-big">142</div><div class="stat-small">Active Rooms</div></div>
+  <div class="stat-item"><div class="stat-big">31%</div><div class="stat-small">Traitor Win Rate</div></div>
+  <div class="stat-item"><div class="stat-big">4.1M</div><div class="stat-small">Betrayals Committed</div></div>
+</div>
+
+<!-- LIVE ROOMS -->
+<div class="section" id="rooms-section">
+  <div class="section-label">// LIVE NOW</div>
+  <div class="section-title">Active Games</div>
+  <div class="rooms-grid" id="rooms-grid"></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<div class="section">
+  <div class="section-label">// MECHANICS</div>
+  <div class="section-title">How You Die (Or Don't)</div>
+  <div class="how-grid">
+    <div class="how-step">
+      <span class="step-icon">🎭</span>
+      <div class="step-num">01</div>
+      <div class="step-title">ROLES ASSIGNED</div>
+      <div class="step-desc">One third of players are secretly Traitors. The rest are Loyalists. No one knows who.</div>
+    </div>
+    <div class="how-step">
+      <span class="step-icon">🔎</span>
+      <div class="step-num">02</div>
+      <div class="step-title">INVESTIGATE</div>
+      <div class="step-desc">Gather clues, accuse suspects, watch behavior patterns. Truth bleeds through lies — eventually.</div>
+    </div>
+    <div class="how-step">
+      <span class="step-icon">🗳️</span>
+      <div class="step-num">03</div>
+      <div class="step-title">VOTE OR DIE</div>
+      <div class="step-desc">Each round ends in a vote. Banish who you suspect. Vote wrong and a Traitor walks free.</div>
+    </div>
+    <div class="how-step">
+      <span class="step-icon">🩸</span>
+      <div class="step-num">04</div>
+      <div class="step-title">TRAITORS STRIKE</div>
+      <div class="step-desc">Every night, Traitors eliminate a Loyalist in secret. Numbers dwindle. Paranoia spikes.</div>
+    </div>
+    <div class="how-step">
+      <span class="step-icon">⚖️</span>
+      <div class="step-num">05</div>
+      <div class="step-title">FINAL RECKONING</div>
+      <div class="step-desc">Loyalists win if all Traitors are banished. Traitors win if they equal or outnumber the rest.</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ROLES -->
+<div class="section">
+  <div class="section-label">// ROLES</div>
+  <div class="section-title">Who Are You?</div>
+  <div class="roles-grid">
+    <div class="role-card traitor-card">
+      <span class="role-icon">🗡️</span>
+      <div class="role-name">TRAITOR</div>
+      <div class="role-desc">You know your allies. Lie, manipulate, and eliminate. You are the darkness inside the group.</div>
+    </div>
+    <div class="role-card ally-card">
+      <span class="role-icon">🛡️</span>
+      <div class="role-name">LOYALIST</div>
+      <div class="role-desc">You know nothing. Use logic, intuition, and social reads to root out the rot before it's too late.</div>
+    </div>
+    <div class="role-card ghost-card" style="border-color:#2a2040;">
+      <span class="role-icon">👁️</span>
+      <div class="role-name" style="color:#9b8ec4;">ORACLE</div>
+      <div class="role-desc">Once per game, glimpse one player's true alignment. But if you share it — you become a target.</div>
+    </div>
+    <div class="role-card ghost-card" style="border-color:#2a3a2a;">
+      <span class="role-icon">🕯️</span>
+      <div class="role-name" style="color:#7ab87a;">MEDIUM</div>
+      <div class="role-desc">Eliminated players whisper to you. The dead hold secrets the living need. But at what cost?</div>
+    </div>
+    <div class="role-card ghost-card" style="border-color:#3a2a1a;">
+      <span class="role-icon">🔱</span>
+      <div class="role-name" style="color:#c9a84c;">ARBITER</div>
+      <div class="role-desc">You hold the deciding vote. Your choice is final and cannot be overturned. Power corrupts.</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- RULES -->
+<div class="section" id="rules-section">
+  <div class="section-label">// THE LAW</div>
+  <div class="section-title">Rules of the Syndicate</div>
+
+  <div class="rules-grid">
+
+    <div class="rule-card crimson">
+      <div class="rule-num">RULE 01</div>
+      <div class="rule-title"><span class="ic">🎭</span> THE SETUP</div>
+      <ul class="rule-list">
+        <li>Each lobby holds <strong>6 to 10 souls</strong>. Roles are dealt at random and kept secret.</li>
+        <li><strong>One third</strong> of the lobby are <em>Traitors</em>. They alone know each other.</li>
+        <li>The rest are <strong>Loyalists</strong>. Some carry hidden gifts: <em>Oracle</em>, <em>Medium</em>, <em>Arbiter</em>.</li>
+        <li>Your role is shown only to you. Reveal it at your peril.</li>
+      </ul>
+    </div>
+
+    <div class="rule-card gold">
+      <div class="rule-num">RULE 02</div>
+      <div class="rule-title"><span class="ic">☀️</span> THE DAY</div>
+      <ul class="rule-list">
+        <li>The day opens with <strong>open discussion</strong>. Speak, accuse, defend, mislead.</li>
+        <li>Every message you send is logged. <em>Words become evidence.</em></li>
+        <li>Mentioning a player by codename raises their <strong>Heat</strong>. Watch who the room is converging on.</li>
+        <li>Any living player may <strong>Call the Vote</strong> early to skip discussion.</li>
+        <li>When the timer runs out, the vote begins automatically.</li>
+      </ul>
+    </div>
+
+    <div class="rule-card crimson">
+      <div class="rule-num">RULE 03</div>
+      <div class="rule-title"><span class="ic">⚖️</span> THE VOTE</div>
+      <ul class="rule-list">
+        <li>Each living player casts <strong>one vote</strong>, or abstains.</li>
+        <li>The player with the <strong>most votes is banished</strong> and their role is revealed.</li>
+        <li>Ties are broken by the <em>Arbiter</em> if one is alive. Otherwise no one dies.</li>
+        <li>The condemned receive a <strong>5-second Last Words</strong> window — one final accusation before the silence.</li>
+        <li>Lying in the vote is not just allowed — it is expected.</li>
+      </ul>
+    </div>
+
+    <div class="rule-card violet">
+      <div class="rule-num">RULE 04</div>
+      <div class="rule-title"><span class="ic">🌑</span> THE NIGHT</div>
+      <ul class="rule-list">
+        <li>When dusk falls, the city sleeps. The <strong>Traitors do not</strong>.</li>
+        <li>Traitors choose <strong>one player</strong> to eliminate. Their identity is found at dawn.</li>
+        <li>The <em>Oracle</em> may peek at one soul's true alignment — <strong>once per game</strong>.</li>
+        <li>The <em>Medium</em> hears whispers from the recently dead, often naming a real Traitor.</li>
+        <li>If no Traitors choose a target, the night is silent. <em>This is rare.</em></li>
+      </ul>
+    </div>
+
+    <div class="rule-card gold">
+      <div class="rule-num">RULE 05</div>
+      <div class="rule-title"><span class="ic">🏆</span> THE VICTORY</div>
+      <ul class="rule-list">
+        <li><strong>Loyalists win</strong> when every Traitor lies banished or slain.</li>
+        <li><strong>Traitors win</strong> the moment they <em>equal or outnumber</em> the remaining Loyalists.</li>
+        <li>Banished Loyalists count as a Traitor victory point. <em>Choose your votes carefully.</em></li>
+        <li>The dead see all at game's end. The full table is revealed in the final reckoning.</li>
+      </ul>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-num">RULE 06</div>
+      <div class="rule-title"><span class="ic">⚔️</span> THE CODE</div>
+      <ul class="rule-list">
+        <li>Deception is the <strong>weapon</strong>, not the crime. Lie freely.</li>
+        <li>The dead may watch but <strong>cannot vote, chat, or act</strong>.</li>
+        <li>Do not name your role unless you mean to die for it.</li>
+        <li>Quiet players draw suspicion. <em>So do loud ones.</em></li>
+        <li>Trust no peek. Trust no whisper. Trust no vote. <strong>Trust no one.</strong></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="rules-quote">
+    The Syndicate does not punish lies. It punishes the gullible who believe them.
+    <span class="attr">— FOUNDING DOCTRINE, YEAR ZERO</span>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- LEADERBOARD -->
+<div class="section">
+  <div class="section-label">// HALL OF SHADOWS</div>
+  <div class="section-title">Top Traitors This Season</div>
+  <div class="leaderboard">
+    <div class="lb-header">
+      <span>#</span><span>PLAYER</span><span style="text-align:right">WINS</span><span style="text-align:right">BETRAYALS</span><span style="text-align:right">RATING</span>
+    </div>
+    <div id="lb-body"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">SYNDICATE</div>
+  <div class="footer-links">
+    <a href="#">Discord</a>
+    <a href="#">Roadmap</a>
+    <a href="#rules-section">Rules</a>
+    <a href="#">Privacy</a>
+  </div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);">© 2025 SYNDICATE · ALL RIGHTS RESERVED</div>
+</footer>
+
+<!-- MODAL -->
+<div id="modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="hideModal()">✕</button>
+    <div class="modal-title">ENTER THE SYNDICATE</div>
+    <div class="modal-sub">Choose your identity. Pick your mode. Trust no one.</div>
+
+    <div class="form-group">
+      <label class="form-label">YOUR CODENAME</label>
+      <input class="form-input" type="text" placeholder="e.g. PHANTOM_X" maxlength="16" id="codename-input">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">AVATAR</label>
+      <div class="avatar-picker" id="avatar-picker">
+        🐺🦊🐍🦅🦁🐺🕷️🦂
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">GAME MODE</label>
+      <div class="mode-select" id="mode-select">
+        <div class="mode-opt selected" data-mode="quick">
+          <div class="mode-opt-title">QUICK MATCH</div>
+          <div class="mode-opt-desc">6 players · fast paced</div>
+        </div>
+        <div class="mode-opt" data-mode="normal">
+          <div class="mode-opt-title">NORMAL</div>
+          <div class="mode-opt-desc">8 players · balanced</div>
+        </div>
+        <div class="mode-opt" data-mode="large">
+          <div class="mode-opt-title">LARGE LOBBY</div>
+          <div class="mode-opt-desc">10 players · long game</div>
+        </div>
+        <div class="mode-opt" data-mode="training">
+          <div class="mode-opt-title">TRAINING</div>
+          <div class="mode-opt-desc">6 players · easier AI</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="enter-btn" onclick="enterGame()">ENTER THE DARK →</button>
+  </div>
+</div>
+</div>
+<!-- end of #landing -->
+
+<!-- ============================================ -->
+<!-- GAME SCREEN                                  -->
+<!-- ============================================ -->
+<div id="game-screen">
+  <div class="game-header">
+    <div class="gh-left">
+      <div class="gh-logo">SYNDICATE</div>
+      <div class="gh-room" id="gh-room">// OBSIDIAN VAULT</div>
+    </div>
+    <div class="gh-right">
+      <div class="day-counter" id="day-counter">DAY 1</div>
+      <div class="phase-badge day" id="phase-badge"><span id="phase-icon">☀️</span> <span id="phase-text">DAY</span></div>
+      <div class="timer" id="timer">0:30</div>
+      <button class="nav-btn" id="mute-btn" onclick="toggleMute()" title="Toggle sound" style="min-width:42px;">🔊</button>
+      <button class="nav-btn" onclick="quitGame()">QUIT</button>
+    </div>
+  </div>
+  <div class="game-body">
+    <!-- LEFT -->
+    <div class="panel">
+      <div class="panel-header">// PLAYERS <span id="alive-count" style="float:right;color:var(--text);">0/0</span></div>
+      <div class="players-list" id="players-list"></div>
+    </div>
+    <!-- CENTER -->
+    <div class="panel">
+      <div class="panel-header">// CHAT</div>
+      <div class="chat-area" id="chat-area"></div>
+      <div class="chat-input-bar">
+        <input type="text" class="chat-input" id="chat-input" placeholder="Speak your mind..." maxlength="180">
+        <button class="chat-send" id="chat-send" onclick="sendChat()">SEND</button>
+      </div>
+    </div>
+    <!-- RIGHT -->
+    <div class="panel">
+      <div class="panel-header">// YOUR ROLE</div>
+      <div id="role-card-host"></div>
+      <div class="action-buttons" id="action-buttons"></div>
+      <div class="game-log-panel">
+        <div class="game-log-header">// LOG</div>
+        <div class="game-log-list" id="game-log-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VOTE OVERLAY -->
+<div id="vote-overlay">
+  <div class="overlay-box">
+    <div class="overlay-title">⚖ THE VOTE</div>
+    <div class="overlay-sub">Who do you accuse? Choose carefully — the wrong vote feeds the darkness.</div>
+    <div class="vote-grid" id="vote-grid"></div>
+    <div class="overlay-actions">
+      <button class="skip-btn" onclick="skipVote()">ABSTAIN</button>
+      <button class="confirm-btn" id="vote-confirm" onclick="confirmVote()" disabled>CONFIRM VOTE</button>
+    </div>
+  </div>
+</div>
+
+<!-- NIGHT OVERLAY -->
+<div id="night-overlay">
+  <div class="overlay-box">
+    <div class="overlay-title">🌑 NIGHTFALL</div>
+    <div class="overlay-sub" id="night-sub">The Syndicate stirs in the dark...</div>
+    <div id="night-content"></div>
+  </div>
+</div>
+
+<!-- GAME OVER OVERLAY -->
+<div id="gameover-overlay">
+  <div class="overlay-box">
+    <div class="gameover-title" id="gameover-title">GAME OVER</div>
+    <div class="gameover-sub" id="gameover-sub"></div>
+    <div class="reveal-grid" id="reveal-grid"></div>
+    <div class="gameover-actions">
+      <button class="skip-btn" onclick="quitGame()">RETURN TO LOBBY</button>
+      <button class="confirm-btn" onclick="rematch()">PLAY AGAIN →</button>
+    </div>
+  </div>
+</div>
+
+<!-- LAST WORDS OVERLAY -->
+<div id="lastwords-overlay">
+  <div class="lw-box">
+    <div class="lw-title">⚰ LAST WORDS</div>
+    <div class="lw-sub">The condemned has one final breath. The room must hear them.</div>
+    <div class="lw-victim" id="lw-victim"></div>
+    <div class="lw-countdown" id="lw-countdown">5</div>
+    <div id="lw-content"></div>
+  </div>
+</div>
+
+<!-- PHASE FLASH -->
+<div id="phase-flash"><div class="phase-flash-text" id="phase-flash-text"></div></div>
+
+<!-- REVEAL TOAST -->
+<div id="reveal-toast"></div>
+
+<script>
+/* ============================================================
+   PARTICLES (unchanged)
+   ============================================================ */
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+for (let i = 0; i < 60; i++) {
+  particles.push({
+    x: Math.random() * innerWidth,
+    y: Math.random() * innerHeight,
+    r: Math.random() * 1.2 + 0.3,
+    dx: (Math.random() - 0.5) * 0.3,
+    dy: -Math.random() * 0.4 - 0.1,
+    alpha: Math.random() * 0.5 + 0.1,
+    color: Math.random() > 0.7 ? '#c0392b' : '#2a1a2a'
+  });
+}
+function animateParticles() {
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = p.alpha;
+    ctx.fill();
+    p.x += p.dx; p.y += p.dy;
+    if (p.y < -5) { p.y = H + 5; p.x = Math.random() * W; }
+    if (p.x < 0 || p.x > W) p.dx *= -1;
+  });
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+/* ============================================================
+   LANDING — rooms, leaderboard, modal (unchanged behavior)
+   ============================================================ */
+const roomData = [
+  { name: 'OBSIDIAN VAULT', status: 'voting', players: ['AX','VX','KR','MN','TZ','PH','BL','SX'], traitorIdx:[2,6], deadIdx:[], cap:10 },
+  { name: 'THE CRIMSON KEEP', status: 'live', players: ['DR','NX','OV','WR','ZK','CH'], traitorIdx:[0,3], deadIdx:[4], cap:8 },
+  { name: 'SHADOW CITADEL', status: 'waiting', players: ['FX','QZ','LM','YB'], traitorIdx:[], deadIdx:[], cap:12 },
+  { name: 'IRON GALLERY', status: 'live', players: ['PL','SK','RV','HX','CM','BN','TK','DW','EZ'], traitorIdx:[1,7], deadIdx:[4,6], cap:10 },
+  { name: 'THE ASHEN COURT', status: 'waiting', players: ['NR','KX'], traitorIdx:[], deadIdx:[], cap:8 },
+  { name: 'VENOM SANCTUM', status: 'voting', players: ['WZ','MX','CR','LV','SB','HD'], traitorIdx:[2,4], deadIdx:[0], cap:8 },
+];
+function buildRooms() {
+  const grid = document.getElementById('rooms-grid');
+  roomData.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'room-card';
+    const statusClass = r.status === 'waiting' ? 'status-waiting' : r.status === 'live' ? 'status-live' : 'status-voting';
+    const statusLabel = r.status === 'waiting' ? 'OPEN' : r.status === 'live' ? '● LIVE' : '⚖ VOTING';
+    const dots = r.players.map((p, i) => {
+      const cls = r.deadIdx.includes(i) ? 'dead' : r.traitorIdx.includes(i) && r.status !== 'waiting' ? 'traitor' : 'alive';
+      return `<div class="player-dot ${cls}" title="${p}">${p[0]}</div>`;
+    }).join('');
+    const canJoin = r.status === 'waiting' && r.players.length < r.cap;
+    div.innerHTML = `
+      <div class="room-header">
+        <div class="room-name">${r.name}</div>
+        <span class="room-status ${statusClass}">${statusLabel}</span>
+      </div>
+      <div class="room-players">${dots}</div>
+      <div class="room-meta">
+        <span>${r.players.length}/${r.cap} PLAYERS</span>
+        <span>${r.status === 'waiting' ? 'WAITING FOR PLAYERS' : r.status === 'voting' ? 'VOTE IN PROGRESS' : 'NIGHT PHASE'}</span>
+      </div>
+      <button class="join-btn" data-room-idx="${roomData.indexOf(r)}">${canJoin ? '→ JOIN ROOM' : '👁 SPECTATE'}</button>
+    `;
+    // Wire up join vs spectate
+    const btn = div.querySelector('.join-btn');
+    if (canJoin) {
+      btn.onclick = () => showModal();
+    } else {
+      btn.onclick = () => spectateRoom(r);
+    }
+    grid.appendChild(div);
+  });
+}
+buildRooms();
+
+function spectateRoom(room) {
+  // Map room size to a mode
+  let mode = 'normal';
+  if (room.cap <= 6) mode = 'quick';
+  else if (room.cap >= 10) mode = 'large';
+  else mode = 'normal';
+  hideModal();
+  startGame('SPECTATOR', '👁', mode, { spectator: true, roomName: room.name });
+}
+
+function watchRandomGame() {
+  const liveRooms = roomData.filter(r => r.status !== 'waiting');
+  const room = liveRooms.length ? liveRooms[Math.floor(Math.random() * liveRooms.length)] : roomData[0];
+  spectateRoom(room);
+}
+
+const lbPlayers = [
+  ['VOID_REAPER', 847, 1203, 2941],
+  ['SPECTR_X', 712, 988, 2718],
+  ['NOCTURN', 698, 876, 2601],
+  ['CRIMSONVEIL', 654, 921, 2544],
+  ['PHANTOM_7', 623, 801, 2398],
+  ['SILKWEB', 589, 743, 2287],
+  ['DUSKBLADE', 562, 698, 2156],
+];
+function buildLB() {
+  const body = document.getElementById('lb-body');
+  lbPlayers.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'lb-row';
+    row.innerHTML = `
+      <div class="lb-rank">${i+1}</div>
+      <div class="lb-player">
+        <div class="lb-avatar">${p[0][0]}</div>
+        <span class="lb-name">${p[0]}</span>
+      </div>
+      <div class="lb-val highlight">${p[1]}</div>
+      <div class="lb-val">${p[2]}</div>
+      <div class="lb-val">${p[3].toLocaleString()}</div>
+    `;
+    body.appendChild(row);
+  });
+}
+buildLB();
+
+const emojis = ['🐺','🦊','🐍','🦅','🦁','🕷️','🦂','🐦‍⬛'];
+const picker = document.getElementById('avatar-picker');
+picker.innerHTML = '';
+let selectedAvatar = emojis[0];
+emojis.forEach((e, i) => {
+  const btn = document.createElement('div');
+  btn.className = 'av-opt' + (i===0?' selected':'');
+  btn.textContent = e;
+  btn.onclick = () => {
+    picker.querySelectorAll('.av-opt').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedAvatar = e;
+  };
+  picker.appendChild(btn);
+});
+
+let selectedMode = 'quick';
+document.querySelectorAll('#mode-select .mode-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('#mode-select .mode-opt').forEach(o=>o.classList.remove('selected'));
+    opt.classList.add('selected');
+    selectedMode = opt.dataset.mode;
+  });
+});
+
+function showModal() { document.getElementById('modal').classList.add('show'); }
+function hideModal() { document.getElementById('modal').classList.remove('show'); }
+document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) hideModal(); });
+
+function scrollToRooms() { document.getElementById('rooms-section').scrollIntoView({ behavior:'smooth' }); }
+
+let count = 2847;
+setInterval(() => {
+  count += Math.floor(Math.random() * 5) - 2;
+  document.getElementById('c1').textContent = count.toLocaleString();
+}, 3000);
+
+/* ============================================================
+   GAME — single-player vs AI
+   ============================================================ */
+
+const MODE_CONFIG = {
+  quick:    { players: 6, dayMs: 32000, easyAi: false, label: 'QUICK MATCH' },
+  normal:   { players: 8, dayMs: 40000, easyAi: false, label: 'NORMAL'      },
+  large:    { players: 10,dayMs: 45000, easyAi: false, label: 'LARGE LOBBY' },
+  training: { players: 6, dayMs: 45000, easyAi: true,  label: 'TRAINING'    },
+};
+
+const ROOM_NAMES = ['OBSIDIAN VAULT','THE CRIMSON KEEP','SHADOW CITADEL','IRON GALLERY','THE ASHEN COURT','VENOM SANCTUM','BLOODGLASS HALL','THE PALE ATRIUM'];
+
+const AI_AVATARS = ['🐺','🦊','🐍','🦅','🦁','🕷️','🦂','🐦‍⬛','🦇','🦝','🐗','🐉','🦊','🐺'];
+const AI_NAMES = [
+  'VOID_REAPER','SPECTR_X','NOCTURN','CRIMSONVEIL','PHANTOM_7','SILKWEB','DUSKBLADE',
+  'HEXVANE','GRIMWIRE','OBSIDIAN_K','RAVENNULL','BLACK_VESPER','IRONMASK','HOLLOWFANG',
+  'NIGHT_HERON','PALE_KNIGHT','ASHEN_QUEEN','VEILED_ONE','RUSTHEART','SHADOWGRAM','VOX_MORTIS'
+];
+
+const ROLE_INFO = {
+  TRAITOR:  { icon:'🗡️', label:'TRAITOR',  desc:'You know your allies. Lie, manipulate, eliminate.', cssClass:'traitor' },
+  LOYALIST: { icon:'🛡️', label:'LOYALIST', desc:'Trust nothing. Find the rot before it finds you.', cssClass:'loyalist' },
+  ORACLE:   { icon:'👁️', label:'ORACLE',   desc:'A loyalist who may peek at one player\'s true alignment, once.', cssClass:'oracle' },
+  MEDIUM:   { icon:'🕯️', label:'MEDIUM',   desc:'A loyalist who hears whispers from the eliminated at night.', cssClass:'medium' },
+  ARBITER:  { icon:'🔱', label:'ARBITER',  desc:'A loyalist whose vote breaks any tie. Choose wisely.', cssClass:'arbiter' },
+};
+const TRAITOR_ROLES = new Set(['TRAITOR']);
+
+// AI chat templates
+const AI_LINES = {
+  loyalist_accuse: [
+    "{T} has been suspiciously quiet.",
+    "{T}'s logic doesn't add up. Watch them.",
+    "Why is {T} so eager to vote others out?",
+    "I don't trust {T}. They keep deflecting.",
+    "{T}, defend yourself. Now.",
+    "Anyone else getting bad vibes from {T}?",
+    "{T} hasn't made a single accusation. Convenient.",
+    "I'm putting {T} on my list.",
+    "{T} reads like a traitor to me.",
+    "Last round {T} pushed hard for an innocent. Coincidence?",
+  ],
+  loyalist_defend: [
+    "I've been straight with you all from day one.",
+    "If you vote me out, you're just doing their work for them.",
+    "Look at the patterns, not at me.",
+    "I'm a loyalist. I have no reason to lie.",
+    "Killing me solves nothing. Use your brain.",
+    "Check who benefits if I die. Not me.",
+  ],
+  loyalist_neutral: [
+    "We need to be careful here. One wrong vote and we're done.",
+    "Has anyone noticed who hasn't spoken yet?",
+    "Let's focus. Who do we actually have evidence against?",
+    "I don't have a read yet. Keep talking.",
+    "Quiet players are dangerous players.",
+    "If we vote wrong tonight, the body count climbs.",
+    "Trust no one. Especially the calm ones.",
+  ],
+  traitor_lie: [
+    "I'm telling you, {T} has been off all game.",
+    "I voted with the group last round. I'm clearly with you.",
+    "If I were a traitor, would I be this nervous?",
+    "{T} is the obvious one. Let's not overthink it.",
+    "Trust me — I have nothing to gain from lying.",
+    "I think {T} fits the pattern.",
+    "Honestly I was suspecting {T} from the start.",
+    "We can't afford to hesitate. {T} has to go.",
+    "I'd never sell you out. We're in this together.",
+    "Look, I've got receipts. {T} dodged a direct question.",
+  ],
+  traitor_defend: [
+    "Me? You're seriously suspecting me right now?",
+    "If I were a traitor, I would've stayed quiet. I'm not stupid.",
+    "Vote me out and watch the murders keep coming. Then you'll know.",
+    "I'm a loyalist. My vote history proves it.",
+    "Don't waste a vote on me. Real enemy is still hiding.",
+  ],
+  reply_to_mention: [
+    "What do you want from me, {S}?",
+    "{S}, that's a stretch and you know it.",
+    "Bold accusation, {S}. Where's your proof?",
+    "{S} is grasping at shadows.",
+    "Funny that {S} would single me out.",
+    "I see you, {S}. I'll remember this.",
+  ],
+  last_words_traitor: [
+    "Heh. You'll never see the next one coming.",
+    "You think this ends with me? The Syndicate is everywhere.",
+    "Goodbye, fools. Sleep well — if you can.",
+    "Watch {T}. They've been quiet for a reason.",
+    "I'd do it all again. Every cut. Every lie.",
+    "One down. Plenty more knives in the dark.",
+    "Enjoy your hollow victory. It won't last the night.",
+  ],
+  last_words_loyalist: [
+    "You just murdered an innocent. Hope you're proud.",
+    "I told you it wasn't me! It's {T}, you blind idiots!",
+    "The real traitor is laughing at you right now.",
+    "Watch what happens next. Then remember my name.",
+    "{T} pushed hardest for this. Ask yourselves why.",
+    "I die for nothing. You'll all follow soon.",
+    "Believe me now or believe me when you're dying.",
+  ],
+  last_words_oracle: [
+    "I never got to share what I saw. Pity.",
+    "I knew. I KNEW. And you wouldn't listen.",
+    "Trust the whispers. The truth was right in front of you.",
+  ],
+  last_words_medium: [
+    "The dead were trying to tell you. You wouldn't hear.",
+    "I leave you with this: their voices were loud about {T}.",
+  ],
+};
+
+// Game state
+let G = null;
+
+function uid() { return 'p' + Math.random().toString(36).slice(2,8); }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function enterGame() {
+  const name = (document.getElementById('codename-input').value.trim() || 'PHANTOM_X').toUpperCase().replace(/\s+/g,'_').slice(0,16);
+  hideModal();
+  startGame(name, selectedAvatar, selectedMode);
+}
+
+function startGame(playerName, playerAvatar, mode, opts) {
+  opts = opts || {};
+  const spectator = !!opts.spectator;
+  const cfg = MODE_CONFIG[mode] || MODE_CONFIG.quick;
+  const total = cfg.players;
+  const traitorCount = Math.max(1, Math.floor(total / 3));
+
+  // Build players. Spectator mode: no human in player list — full lobby is AI.
+  const aiCount = spectator ? total : total - 1;
+  const aiNames = shuffle(AI_NAMES.filter(n => n !== playerName)).slice(0, aiCount);
+  const aiAvs = shuffle(AI_AVATARS).slice(0, aiCount);
+  const players = [];
+  if (!spectator) {
+    players.push({ id: uid(), name: playerName, avatar: playerAvatar, isYou: true, alive: true, role: null, abilityUsed: false, heat: 0 });
+  }
+  for (let i = 0; i < aiCount; i++) {
+    players.push({ id: uid(), name: aiNames[i], avatar: aiAvs[i], isYou: false, alive: true, role: null, abilityUsed: false, suspicion: {}, heat: 0 });
+  }
+
+  // Assign roles. Traitors first (random), then specials among loyalists.
+  const order = shuffle(players);
+  const traitorSet = new Set();
+  for (let i = 0; i < traitorCount; i++) {
+    order[i].role = 'TRAITOR';
+    traitorSet.add(order[i].id);
+  }
+  const loyalistsPool = order.slice(traitorCount);
+  // Specials only on >=6 player lobbies; arbiter only on >=8
+  const specials = ['ORACLE','MEDIUM'];
+  if (total >= 8) specials.push('ARBITER');
+  for (const sp of specials) {
+    if (loyalistsPool.length === 0) break;
+    const next = loyalistsPool.shift();
+    next.role = sp;
+  }
+  for (const rest of loyalistsPool) rest.role = 'LOYALIST';
+
+  G = {
+    mode, cfg, total, traitorCount,
+    players,
+    you: players.find(p => p.isYou) || null,
+    spectator,
+    phase: null,
+    day: 1,
+    timer: 0,
+    timerInterval: null,
+    chat: [],
+    log: [],
+    pendingVote: null,        // {targetId} for player vote in vote phase
+    pendingTraitorKill: null, // {targetId} for player traitor at night
+    pendingOraclePeek: null,  // {targetId} for oracle at night
+    voteCallActive: false,
+    roomName: opts.roomName || pick(ROOM_NAMES),
+    over: false,
+  };
+
+  // Show game screen
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('game-screen').classList.add('show');
+  document.getElementById('game-screen').classList.toggle('spectator-mode', spectator);
+  document.getElementById('gh-room').textContent = '// ' + G.roomName + ' · ' + cfg.label + (spectator ? ' · 👁 SPECTATING' : '');
+
+  renderRoleCard();
+  renderPlayers();
+  renderActions();
+  document.getElementById('chat-area').innerHTML = '';
+  document.getElementById('game-log-list').innerHTML = '';
+
+  // Intro messages
+  systemMsg('Welcome to ' + G.roomName + '. ' + total + ' souls have entered. ' + traitorCount + ' are not what they seem.');
+  if (spectator) {
+    const traitors = G.players.filter(p => p.role === 'TRAITOR').map(p => p.name).join(', ');
+    systemMsg('👁 SPECTATOR MODE — You see all. Traitors: ' + traitors, 'reveal');
+  } else if (G.you.role === 'TRAITOR') {
+    const allies = G.players.filter(p => p.role === 'TRAITOR' && !p.isYou).map(p => p.name).join(', ');
+    systemMsg('You are a TRAITOR. Your allies: ' + (allies || 'none'), 'reveal');
+  } else {
+    systemMsg('You are a ' + G.you.role + '. Find the traitors before they find you.', 'reveal');
+  }
+  logEvent('Game begins. Day 1.');
+
+  // Begin first day
+  setTimeout(() => startDayPhase(), 700);
+}
+
+function quitGame() {
+  if (G && G.timerInterval) clearInterval(G.timerInterval);
+  G = null;
+  document.getElementById('game-screen').classList.remove('show');
+  document.getElementById('vote-overlay').classList.remove('show');
+  document.getElementById('night-overlay').classList.remove('show');
+  document.getElementById('gameover-overlay').classList.remove('show');
+  document.getElementById('reveal-toast').classList.remove('show');
+  document.getElementById('landing').style.display = '';
+}
+
+function rematch() {
+  if (!G) { quitGame(); return; }
+  const wasSpectator = !!G.spectator;
+  const name = wasSpectator ? 'SPECTATOR' : G.you.name;
+  const av = wasSpectator ? '👁' : G.you.avatar;
+  const mode = G.mode;
+  const roomName = G.roomName;
+  document.getElementById('gameover-overlay').classList.remove('show');
+  document.getElementById('game-screen').classList.remove('show');
+  setTimeout(() => startGame(name, av, mode, wasSpectator ? { spectator: true, roomName } : undefined), 250);
+}
+
+/* ----------------- Phase: DAY ----------------- */
+function startDayPhase() {
+  if (G.over) return;
+  G.phase = 'DAY';
+  G.voteCallActive = false;
+  setPhaseBadge('day', '☀️', 'DAY');
+  flashPhase('day', '☀ DAY ' + G.day);
+  SFX.day();
+  document.getElementById('day-counter').textContent = 'DAY ' + G.day;
+  const canChat = !!(G.you && G.you.alive);
+  const inputEl = document.getElementById('chat-input');
+  inputEl.disabled = !canChat;
+  document.getElementById('chat-send').disabled = !canChat;
+  inputEl.placeholder = G.spectator ? '👁 SPECTATOR — read-only' : 'Speak your mind...';
+  if (canChat) inputEl.focus();
+  renderActions();
+  renderPlayers();
+
+  systemMsg('Day breaks. Discuss. Accuse. Decide.');
+  startTimer(G.cfg.dayMs, () => {
+    if (G.over) return;
+    if (G.phase === 'DAY') startVotePhase();
+  });
+
+  // Schedule AI chatter throughout day
+  scheduleAiChatter(G.cfg.dayMs);
+}
+
+function scheduleAiChatter(durationMs) {
+  const aliveAis = G.players.filter(p => p.alive && !p.isYou);
+  // 3-5 messages per AI across the day, spaced out
+  aliveAis.forEach(ai => {
+    const msgCount = 3 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < msgCount; i++) {
+      const slot = (durationMs * (i + 0.4 + Math.random() * 0.5)) / msgCount;
+      setTimeout(() => {
+        if (G.over || G.phase !== 'DAY' || !ai.alive) return;
+        sendAiChat(ai);
+      }, slot);
+    }
+  });
+}
+
+function sendAiChat(ai) {
+  if (G.over) return;
+  const aliveOthers = G.players.filter(p => p.alive && p.id !== ai.id);
+  const isTraitor = ai.role === 'TRAITOR';
+
+  // 25% chance to react to a recent direct mention of ai.name
+  const recent = G.chat.slice(-6);
+  const mentionedBy = recent.find(m => m.kind === 'player' && m.authorId !== ai.id && m.text && m.text.toUpperCase().includes(ai.name));
+  if (mentionedBy && Math.random() < 0.55) {
+    const speaker = G.players.find(p => p.id === mentionedBy.authorId);
+    const line = pick(AI_LINES.reply_to_mention).replace('{S}', speaker ? speaker.name : 'YOU');
+    chatMsg(ai, line);
+    return;
+  }
+
+  let pool;
+  if (isTraitor) {
+    // 60% lie/accuse, 40% defend or neutral
+    pool = Math.random() < 0.6 ? AI_LINES.traitor_lie : (Math.random() < 0.5 ? AI_LINES.traitor_defend : AI_LINES.loyalist_neutral);
+  } else {
+    const r = Math.random();
+    if (r < 0.45) pool = AI_LINES.loyalist_accuse;
+    else if (r < 0.7) pool = AI_LINES.loyalist_neutral;
+    else pool = AI_LINES.loyalist_defend;
+  }
+  let line = pick(pool);
+
+  if (line.includes('{T}')) {
+    let target;
+    if (isTraitor) {
+      // Traitors target loyalists / specials
+      const targets = aliveOthers.filter(p => p.role !== 'TRAITOR');
+      target = targets.length ? pick(targets) : pick(aliveOthers);
+    } else {
+      // Loyalists pick a target with mild bias toward actual traitors (intuition); training mode = stronger bias
+      const traitorPool = aliveOthers.filter(p => p.role === 'TRAITOR');
+      const others = aliveOthers.filter(p => p.role !== 'TRAITOR');
+      const bias = G.cfg.easyAi ? 0.55 : 0.32;
+      target = (traitorPool.length && Math.random() < bias) ? pick(traitorPool) : pick(others.length ? others : aliveOthers);
+    }
+    line = line.replace('{T}', target ? target.name : 'someone');
+  }
+
+  chatMsg(ai, line);
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const txt = input.value.trim();
+  if (!txt) return;
+  if (!G || !G.you || !G.you.alive || G.phase !== 'DAY') return;
+  input.value = '';
+  chatMsg(G.you, txt);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && document.activeElement === document.getElementById('chat-input')) {
+    sendChat();
+  }
+});
+
+/* ----------------- VOTE phase ----------------- */
+function callVote() {
+  if (!G || G.phase !== 'DAY' || !G.you || !G.you.alive) return;
+  systemMsg(G.you.name + ' has called for a vote!');
+  startVotePhase();
+}
+
+function startVotePhase() {
+  if (G.over) return;
+  G.phase = 'VOTE';
+  setPhaseBadge('vote', '⚖️', 'VOTE');
+  flashPhase('vote', '⚖ VOTE');
+  SFX.vote();
+  document.getElementById('chat-input').disabled = true;
+  document.getElementById('chat-send').disabled = true;
+  renderActions();
+  systemMsg('The vote begins. Choose who to banish.');
+  stopTimer();
+
+  // Show overlay if player is alive
+  if (G.you && G.you.alive) {
+    G.pendingVote = null;
+    renderVoteGrid();
+    document.getElementById('vote-overlay').classList.add('show');
+    document.getElementById('vote-confirm').disabled = true;
+    // 18s timer
+    startTimer(18000, () => {
+      if (G.over) return;
+      // Auto-skip if no vote
+      if (G.phase === 'VOTE' && document.getElementById('vote-overlay').classList.contains('show')) {
+        document.getElementById('vote-overlay').classList.remove('show');
+        resolveVote(null);
+      }
+    });
+  } else {
+    // Dead player or spectator just waits while AI votes resolve
+    startTimer(G.spectator ? 5000 : 8000, () => resolveVote(null));
+  }
+}
+
+function renderVoteGrid() {
+  const grid = document.getElementById('vote-grid');
+  grid.innerHTML = '';
+  G.players.filter(p => p.alive && !p.isYou).forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'vote-target';
+    div.dataset.id = p.id;
+    div.innerHTML = `<span class="av">${p.avatar}</span><span class="nm">${p.name}</span>`;
+    div.onclick = () => {
+      grid.querySelectorAll('.vote-target').forEach(t => t.classList.remove('selected'));
+      div.classList.add('selected');
+      G.pendingVote = p.id;
+      document.getElementById('vote-confirm').disabled = false;
+      SFX.click();
+    };
+    grid.appendChild(div);
+  });
+}
+
+function skipVote() {
+  document.getElementById('vote-overlay').classList.remove('show');
+  resolveVote(null);
+}
+
+function confirmVote() {
+  if (!G.pendingVote) return;
+  const choice = G.pendingVote;
+  SFX.confirm();
+  document.getElementById('vote-overlay').classList.remove('show');
+  resolveVote(choice);
+}
+
+function resolveVote(playerVoteTargetId) {
+  if (G.over) return;
+  stopTimer();
+  // Tally votes
+  const votes = {}; // targetId -> count
+  const voteRecord = []; // for log
+  const arbiter = G.players.find(p => p.role === 'ARBITER' && p.alive);
+
+  // Player vote (skipped in spectator mode — no human player exists)
+  if (G.you && G.you.alive && playerVoteTargetId) {
+    votes[playerVoteTargetId] = (votes[playerVoteTargetId] || 0) + 1;
+    const t = G.players.find(p => p.id === playerVoteTargetId);
+    if (t) t.heat += 3;
+    voteRecord.push(G.you.name + ' → ' + (t ? t.name : '?'));
+  } else if (G.you && G.you.alive) {
+    voteRecord.push(G.you.name + ' abstained');
+  }
+
+  // AI votes
+  G.players.filter(p => p.alive && !p.isYou).forEach(ai => {
+    const target = aiPickVoteTarget(ai);
+    if (target) {
+      votes[target.id] = (votes[target.id] || 0) + 1;
+      target.heat += 3;
+      voteRecord.push(ai.name + ' → ' + target.name);
+    }
+  });
+
+  // Determine top
+  let topId = null, topCount = 0, tied = [];
+  Object.entries(votes).forEach(([id, c]) => {
+    if (c > topCount) { topCount = c; topId = id; tied = [id]; }
+    else if (c === topCount) tied.push(id);
+  });
+
+  // Arbiter tiebreaker
+  if (tied.length > 1 && arbiter) {
+    let arbChoice;
+    if (arbiter.isYou) {
+      // Player is arbiter — if they voted for one of the tied, use that; otherwise random of tied
+      arbChoice = (playerVoteTargetId && tied.includes(playerVoteTargetId)) ? playerVoteTargetId : pick(tied);
+    } else {
+      // AI arbiter picks the most likely traitor among tied (loyalist arbiter)
+      const tiedPlayers = tied.map(id => G.players.find(p => p.id === id));
+      const traitorTied = tiedPlayers.filter(p => p && p.role === 'TRAITOR');
+      arbChoice = (traitorTied.length ? pick(traitorTied) : pick(tiedPlayers)).id;
+    }
+    topId = arbChoice;
+    systemMsg('The ARBITER (' + arbiter.name + ') breaks the tie.', 'reveal');
+  }
+
+  // Log vote tally
+  const tallyText = Object.entries(votes).map(([id, c]) => {
+    const p = G.players.find(x => x.id === id);
+    return (p ? p.name : '?') + ' (' + c + ')';
+  }).join(', ');
+  if (tallyText) systemMsg('Votes: ' + tallyText);
+
+  if (!topId || topCount === 0) {
+    systemMsg('No one is banished. The shadows grow longer.');
+    logEvent('Day ' + G.day + ': no banishment.');
+    renderPlayers();
+    if (checkWin()) return;
+    setTimeout(() => startNightPhase(), 1600);
+    return;
+  }
+
+  const target = G.players.find(p => p.id === topId);
+  if (!target) {
+    setTimeout(() => startNightPhase(), 1600);
+    return;
+  }
+
+  systemMsg(target.name + ' has been condemned. The room awaits their last words.');
+  // Trigger last words BEFORE role reveal so players can be misled by parting accusations.
+  showLastWords(target, () => {
+    target.alive = false;
+    const roleLine = ROLE_INFO[target.role] ? ROLE_INFO[target.role].label : target.role;
+    SFX.banish();
+    systemMsg(target.name + ' is BANISHED. They were a ' + roleLine + '.', target.role === 'TRAITOR' ? 'reveal' : 'kill');
+    logEvent('Day ' + G.day + ': ' + target.name + ' banished (' + roleLine + ').', target.role === 'TRAITOR' ? 'banish' : 'kill');
+    renderPlayers();
+    if (checkWin()) return;
+    setTimeout(() => startNightPhase(), 1500);
+  });
+}
+
+/* ----------------- LAST WORDS ----------------- */
+function showLastWords(victim, onDone) {
+  const overlay = document.getElementById('lastwords-overlay');
+  const victimHost = document.getElementById('lw-victim');
+  const content = document.getElementById('lw-content');
+  const countdownEl = document.getElementById('lw-countdown');
+
+  victimHost.innerHTML = `<span class="av">${victim.avatar}</span> ${victim.name}${victim.isYou ? ' (YOU)' : ''}`;
+  countdownEl.textContent = '5';
+  countdownEl.classList.remove('urgent');
+  SFX.heartbeat();
+
+  // Track countdown locally so it doesn't collide with the phase timer.
+  let secondsLeft = 5;
+  let finished = false;
+  const tick = setInterval(() => {
+    secondsLeft -= 1;
+    if (secondsLeft >= 0) countdownEl.textContent = String(secondsLeft);
+    if (secondsLeft <= 2) countdownEl.classList.add('urgent');
+    if (secondsLeft <= 0) {
+      clearInterval(tick);
+      finishLastWords();
+    }
+  }, 1000);
+
+  function finishLastWords(playerLine) {
+    if (finished) return;
+    finished = true;
+    clearInterval(tick);
+    overlay.classList.remove('show');
+    if (playerLine && playerLine.trim()) {
+      chatMsg(victim, playerLine.trim());
+    }
+    setTimeout(onDone, 500);
+  }
+
+  if (victim.isYou) {
+    content.innerHTML = `
+      <input type="text" class="lw-input" id="lw-input" placeholder="Scream a final accusation..." maxlength="140" autofocus>
+      <div class="lw-actions">
+        <button class="skip-btn" id="lw-skip">DIE IN SILENCE</button>
+        <button class="confirm-btn" id="lw-send">SCREAM IT →</button>
+      </div>
+    `;
+    overlay.classList.add('show');
+    const input = document.getElementById('lw-input');
+    setTimeout(() => input && input.focus(), 80);
+    document.getElementById('lw-send').onclick = () => finishLastWords(input.value);
+    document.getElementById('lw-skip').onclick = () => finishLastWords(null);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); finishLastWords(input.value); }
+    });
+  } else {
+    // AI generates a parting line. Reveal in chat AND show in the overlay for drama.
+    const line = generateAiLastWords(victim);
+    content.innerHTML = `<div class="lw-ai-line">${escapeHtml(line)}</div>`;
+    chatMsg(victim, line);
+    overlay.classList.add('show');
+    // AI: shorter wait so flow keeps moving (3.5s).
+    secondsLeft = 4;
+    countdownEl.textContent = '4';
+    setTimeout(() => finishLastWords(null), 3500);
+  }
+}
+
+function generateAiLastWords(victim) {
+  let pool;
+  if (victim.role === 'TRAITOR') pool = AI_LINES.last_words_traitor;
+  else if (victim.role === 'ORACLE') pool = AI_LINES.last_words_oracle.concat(AI_LINES.last_words_loyalist);
+  else if (victim.role === 'MEDIUM') pool = AI_LINES.last_words_medium.concat(AI_LINES.last_words_loyalist);
+  else pool = AI_LINES.last_words_loyalist;
+
+  let line = pick(pool);
+  if (line.includes('{T}')) {
+    const aliveOthers = G.players.filter(p => p.alive && p.id !== victim.id);
+    let target;
+    if (victim.role === 'TRAITOR') {
+      // Final misdirection — point at a loyalist
+      const loyalists = aliveOthers.filter(p => p.role !== 'TRAITOR');
+      target = loyalists.length ? pick(loyalists) : pick(aliveOthers);
+    } else {
+      // Loyalists try to name a real traitor
+      const traitors = aliveOthers.filter(p => p.role === 'TRAITOR');
+      target = traitors.length ? pick(traitors) : pick(aliveOthers);
+    }
+    line = line.replace('{T}', target ? target.name : 'them');
+  }
+  return line;
+}
+
+function aiPickVoteTarget(ai) {
+  const aliveOthers = G.players.filter(p => p.alive && p.id !== ai.id);
+  if (!aliveOthers.length) return null;
+  if (ai.role === 'TRAITOR') {
+    // Traitors vote for loyalists, prefer specials (ORACLE/MEDIUM/ARBITER) then plain loyalists
+    const specials = aliveOthers.filter(p => p.role === 'ORACLE' || p.role === 'MEDIUM' || p.role === 'ARBITER');
+    const plain = aliveOthers.filter(p => p.role === 'LOYALIST');
+    if (specials.length && Math.random() < 0.55) return pick(specials);
+    if (plain.length) return pick(plain);
+    return pick(aliveOthers);
+  } else {
+    // Loyalist: bias toward actual traitors (intuition), training = bigger bias
+    const traitorPool = aliveOthers.filter(p => p.role === 'TRAITOR');
+    const others = aliveOthers.filter(p => p.role !== 'TRAITOR');
+    const bias = G.cfg.easyAi ? 0.55 : 0.32;
+    if (traitorPool.length && Math.random() < bias) return pick(traitorPool);
+    return pick(others.length ? others : aliveOthers);
+  }
+}
+
+/* ----------------- NIGHT phase ----------------- */
+function startNightPhase() {
+  if (G.over) return;
+  G.phase = 'NIGHT';
+  setPhaseBadge('night', '🌑', 'NIGHT');
+  flashPhase('night', '🌑 NIGHT ' + G.day);
+  SFX.night();
+  document.getElementById('chat-input').disabled = true;
+  document.getElementById('chat-send').disabled = true;
+  renderActions();
+  systemMsg('Night falls. The Syndicate moves in silence.');
+
+  G.pendingTraitorKill = null;
+  G.pendingOraclePeek = null;
+
+  const overlay = document.getElementById('night-overlay');
+  const content = document.getElementById('night-content');
+  const sub = document.getElementById('night-sub');
+
+  if (G.spectator) {
+    sub.textContent = 'The Syndicate moves under cover of dark.';
+    content.innerHTML = '<div class="moon-icon">🌑</div><div class="sleep-msg">👁 You watch the night unfold...</div>';
+    overlay.classList.add('show');
+    startTimer(4500, () => { overlay.classList.remove('show'); resolveNight(); });
+    return;
+  }
+
+  if (!G.you.alive) {
+    sub.textContent = 'You watch from beyond the veil...';
+    content.innerHTML = '<div class="moon-icon">🕯️</div><div class="sleep-msg">The dead have no vote tonight.</div>';
+    overlay.classList.add('show');
+    startTimer(8000, () => { overlay.classList.remove('show'); resolveNight(); });
+    return;
+  }
+
+  if (G.you.role === 'TRAITOR') {
+    sub.textContent = 'Choose a target. Strike from the dark.';
+    const targets = G.players.filter(p => p.alive && p.role !== 'TRAITOR');
+    content.innerHTML = '<div class="vote-grid" id="night-grid"></div><div class="overlay-actions"><button class="skip-btn" onclick="skipNightAction()">PASS</button><button class="confirm-btn" id="night-confirm" onclick="confirmNightAction()" disabled>STRIKE →</button></div>';
+    const grid = document.getElementById('night-grid');
+    targets.forEach(t => {
+      const d = document.createElement('div');
+      d.className = 'vote-target';
+      d.innerHTML = `<span class="av">${t.avatar}</span><span class="nm">${t.name}</span>`;
+      d.onclick = () => {
+        grid.querySelectorAll('.vote-target').forEach(x=>x.classList.remove('selected'));
+        d.classList.add('selected');
+        G.pendingTraitorKill = t.id;
+        document.getElementById('night-confirm').disabled = false;
+        SFX.click();
+      };
+      grid.appendChild(d);
+    });
+    overlay.classList.add('show');
+    startTimer(15000, () => { overlay.classList.remove('show'); resolveNight(); });
+  } else if (G.you.role === 'ORACLE' && !G.you.abilityUsed) {
+    sub.textContent = 'Glimpse one soul. Their truth is yours.';
+    const targets = G.players.filter(p => p.alive && !p.isYou);
+    content.innerHTML = '<div class="vote-grid" id="night-grid"></div><div class="overlay-actions"><button class="skip-btn" onclick="skipNightAction()">SAVE FOR LATER</button><button class="confirm-btn" id="night-confirm" onclick="confirmNightAction()" disabled>PEEK →</button></div>';
+    const grid = document.getElementById('night-grid');
+    targets.forEach(t => {
+      const d = document.createElement('div');
+      d.className = 'vote-target';
+      d.innerHTML = `<span class="av">${t.avatar}</span><span class="nm">${t.name}</span>`;
+      d.onclick = () => {
+        grid.querySelectorAll('.vote-target').forEach(x=>x.classList.remove('selected'));
+        d.classList.add('selected');
+        G.pendingOraclePeek = t.id;
+        document.getElementById('night-confirm').disabled = false;
+        SFX.click();
+      };
+      grid.appendChild(d);
+    });
+    overlay.classList.add('show');
+    startTimer(14000, () => { overlay.classList.remove('show'); resolveNight(); });
+  } else {
+    // Plain loyalist / medium / arbiter / used-oracle: just sleep
+    sub.textContent = 'You bar your door and listen for footsteps.';
+    content.innerHTML = '<div class="moon-icon">🌑</div><div class="sleep-msg">You sleep. Hope you wake up.</div>';
+    overlay.classList.add('show');
+    startTimer(7000, () => { overlay.classList.remove('show'); resolveNight(); });
+  }
+}
+
+function skipNightAction() {
+  G.pendingTraitorKill = null;
+  G.pendingOraclePeek = null;
+  document.getElementById('night-overlay').classList.remove('show');
+  resolveNight();
+}
+
+function confirmNightAction() {
+  SFX.confirm();
+  document.getElementById('night-overlay').classList.remove('show');
+  resolveNight();
+}
+
+function resolveNight() {
+  if (G.over) return;
+  stopTimer();
+
+  // Oracle peek result for player
+  if (G.pendingOraclePeek) {
+    const target = G.players.find(p => p.id === G.pendingOraclePeek);
+    if (target) {
+      G.you.abilityUsed = true;
+      const isTraitor = target.role === 'TRAITOR';
+      const tag = isTraitor ? '<span class="role-tag t">TRAITOR</span>' : '<span class="role-tag l">LOYAL</span>';
+      const toast = document.getElementById('reveal-toast');
+      toast.innerHTML = '👁️ ORACLE VISION — <strong>' + target.name + '</strong> is ' + tag;
+      toast.classList.add('show');
+      SFX.oracle();
+      setTimeout(() => toast.classList.remove('show'), 5000);
+      logEvent('Oracle peeked at ' + target.name + ' — ' + (isTraitor ? 'TRAITOR' : 'loyal') + '.');
+    }
+  }
+
+  // Determine the night kill (traitor team chooses)
+  const aliveTraitors = G.players.filter(p => p.role === 'TRAITOR' && p.alive);
+  const aliveLoyalists = G.players.filter(p => p.alive && p.role !== 'TRAITOR');
+  let killTargetId = null;
+  const youIsTraitor = G.you && G.you.role === 'TRAITOR' && G.you.alive;
+
+  if (aliveTraitors.length > 0 && aliveLoyalists.length > 0) {
+    if (youIsTraitor && G.pendingTraitorKill) {
+      // Player traitor chose target
+      killTargetId = G.pendingTraitorKill;
+    } else {
+      // AI traitors pick a target. Prefer specials.
+      const aiTraitors = aliveTraitors.filter(t => !t.isYou);
+      const decider = aiTraitors.length ? pick(aiTraitors) : aliveTraitors[0];
+      const specials = aliveLoyalists.filter(p => p.role === 'ORACLE' || p.role === 'MEDIUM' || p.role === 'ARBITER');
+      const plain = aliveLoyalists.filter(p => p.role === 'LOYALIST');
+      const target = (specials.length && Math.random() < 0.5) ? pick(specials) : (plain.length ? pick(plain) : pick(aliveLoyalists));
+      killTargetId = target.id;
+      // Note: if player is sole traitor and didn't pick, no kill happens.
+      if (youIsTraitor && aiTraitors.length === 0 && !G.pendingTraitorKill) {
+        killTargetId = null;
+      }
+    }
+  }
+
+  if (killTargetId) {
+    const victim = G.players.find(p => p.id === killTargetId);
+    if (victim) {
+      victim.alive = false;
+      SFX.kill();
+      systemMsg('☠ ' + victim.name + ' was found at dawn. Cold. Silent. Dead.', 'kill');
+      logEvent('Night ' + G.day + ': ' + victim.name + ' eliminated.', 'kill');
+
+      // Medium hint
+      const medium = G.players.find(p => p.role === 'MEDIUM' && p.alive && p.isYou);
+      if (medium) {
+        // Hint: name a real traitor (50% accurate, sometimes the killer ai)
+        const traitorsAlive = G.players.filter(p => p.role === 'TRAITOR' && p.alive);
+        if (traitorsAlive.length) {
+          const hinted = pick(traitorsAlive);
+          setTimeout(() => SFX.whisper(), 400);
+          systemMsg('🕯️ A whisper from beyond: "' + victim.name + ' saw ' + hinted.name + '\'s face..."', 'whisper');
+          logEvent('Medium whisper: ' + hinted.name + ' implicated.');
+        }
+      }
+    }
+  } else {
+    systemMsg('The night was quiet. No one was struck.');
+    logEvent('Night ' + G.day + ': no kill.');
+  }
+
+  renderPlayers();
+  if (checkWin()) return;
+
+  G.day += 1;
+  setTimeout(() => startDayPhase(), 1700);
+}
+
+/* ----------------- WIN CHECK ----------------- */
+function checkWin() {
+  const aliveTraitors = G.players.filter(p => p.role === 'TRAITOR' && p.alive).length;
+  const aliveLoyalists = G.players.filter(p => p.role !== 'TRAITOR' && p.alive).length;
+  if (aliveTraitors === 0) {
+    endGame('LOYALISTS WIN', 'The Syndicate is broken. The light returns.', 'loyalist');
+    return true;
+  }
+  if (aliveTraitors >= aliveLoyalists) {
+    endGame('TRAITORS WIN', 'The shadows close in. The Syndicate rules.', 'traitor');
+    return true;
+  }
+  return false;
+}
+
+function endGame(title, sub, side) {
+  G.over = true;
+  stopTimer();
+  document.getElementById('vote-overlay').classList.remove('show');
+  document.getElementById('night-overlay').classList.remove('show');
+  setPhaseBadge('vote', '☠️', 'OVER');
+  if (side === 'loyalist') SFX.victoryLoyalist();
+  else SFX.victoryTraitor();
+
+  const t = document.getElementById('gameover-title');
+  t.textContent = title;
+  t.className = 'gameover-title ' + (side === 'loyalist' ? 'loyalist-win' : 'traitor-win');
+  document.getElementById('gameover-sub').textContent = sub;
+
+  const grid = document.getElementById('reveal-grid');
+  grid.innerHTML = '';
+  G.players.forEach(p => {
+    const info = ROLE_INFO[p.role] || ROLE_INFO.LOYALIST;
+    const card = document.createElement('div');
+    card.className = 'reveal-card ' + info.cssClass + (p.alive ? '' : ' dead');
+    card.innerHTML = `
+      <span class="reveal-av">${p.avatar}</span>
+      <div class="reveal-nm">${p.name}${p.isYou ? ' (YOU)' : ''}</div>
+      <div class="reveal-rl">${info.icon} ${info.label}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:0.15em;">${p.alive ? 'SURVIVED' : 'ELIMINATED'}</div>
+    `;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('gameover-overlay').classList.add('show');
+}
+
+/* ----------------- TIMER ----------------- */
+function startTimer(durationMs, onDone) {
+  stopTimer();
+  G.timer = Math.ceil(durationMs / 1000);
+  updateTimer();
+  G.timerInterval = setInterval(() => {
+    G.timer -= 1;
+    updateTimer();
+    if (G.timer <= 0) {
+      stopTimer();
+      onDone && onDone();
+    }
+  }, 1000);
+}
+function stopTimer() {
+  if (G && G.timerInterval) {
+    clearInterval(G.timerInterval);
+    G.timerInterval = null;
+  }
+}
+function updateTimer() {
+  const el = document.getElementById('timer');
+  const m = Math.floor(G.timer / 60);
+  const s = G.timer % 60;
+  el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  el.classList.toggle('urgent', G.timer <= 5 && G.timer > 0);
+}
+
+/* ----------------- RENDERERS ----------------- */
+function setPhaseBadge(cls, icon, text) {
+  const b = document.getElementById('phase-badge');
+  b.className = 'phase-badge ' + cls;
+  document.getElementById('phase-icon').textContent = icon;
+  document.getElementById('phase-text').textContent = text;
+}
+
+function flashPhase(cls, text) {
+  const f = document.getElementById('phase-flash');
+  const t = document.getElementById('phase-flash-text');
+  t.className = 'phase-flash-text ' + cls;
+  t.textContent = text;
+  f.classList.add('show');
+  setTimeout(() => f.classList.remove('show'), 900);
+}
+
+function renderRoleCard() {
+  const host = document.getElementById('role-card-host');
+  if (G.spectator) {
+    const traitors = G.players.filter(p => p.role === 'TRAITOR').map(p => p.avatar + ' ' + p.name).join(' · ');
+    host.innerHTML = `
+      <div class="role-card-game role-spectator">
+        <span class="role-icon-game">👁</span>
+        <div class="role-name-game">SPECTATOR</div>
+        <div class="role-desc-game">You see all roles. You cannot speak, vote, or act. Just watch the lies bloom.</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red-glow);margin-top:8px;letter-spacing:0.15em;">TRAITORS: ${traitors || 'none'}</div>
+      </div>
+    `;
+    return;
+  }
+  const info = ROLE_INFO[G.you.role] || ROLE_INFO.LOYALIST;
+  let extra = '';
+  if (G.you.role === 'TRAITOR') {
+    const allies = G.players.filter(p => p.role === 'TRAITOR' && !p.isYou).map(p => p.avatar + ' ' + p.name).join(' · ');
+    extra = '<div style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:var(--red-glow);margin-top:8px;letter-spacing:0.15em;">ALLIES: ' + (allies || 'none') + '</div>';
+  }
+  host.innerHTML = `
+    <div class="role-card-game ${info.cssClass}">
+      <span class="role-icon-game">${info.icon}</span>
+      <div class="role-name-game">${info.label}</div>
+      <div class="role-desc-game">${info.desc}</div>
+      ${extra}
+    </div>
+  `;
+}
+
+function renderPlayers() {
+  const list = document.getElementById('players-list');
+  list.innerHTML = '';
+  const knowsTraitors = G.you && G.you.role === 'TRAITOR';
+  const seesAll = !!G.spectator;
+  G.players.forEach(p => {
+    const row = document.createElement('div');
+    let cls = 'player-row ' + (p.alive ? 'alive' : 'dead');
+    let tag = '';
+    if (p.isYou) {
+      cls += ' you';
+      tag = ROLE_INFO[p.role].label;
+    } else if (seesAll) {
+      // Spectator sees everyone's role
+      const info = ROLE_INFO[p.role];
+      tag = (info ? info.label : '');
+      if (p.role === 'TRAITOR') cls += ' fellow-traitor';
+    } else if (knowsTraitors && p.role === 'TRAITOR') {
+      cls += ' fellow-traitor';
+      tag = 'TRAITOR';
+    }
+    if (!p.alive) {
+      const info = ROLE_INFO[p.role];
+      tag = (info ? info.label : '');
+    }
+    row.className = cls;
+    const heatHtml = p.alive ? renderHeatBar(p) : '';
+    row.innerHTML = `
+      <div class="player-avatar">${p.avatar}</div>
+      <div class="player-info">
+        <div class="player-name">${p.name}${p.isYou ? ' (YOU)' : ''}</div>
+        ${tag ? '<div class="player-tag">' + tag + '</div>' : ''}
+        ${heatHtml}
+      </div>
+      <span class="player-status ${p.alive ? 'status-alive' : 'status-dead'}">${p.alive ? '● LIVE' : '✕ DEAD'}</span>
+    `;
+    list.appendChild(row);
+  });
+  const aliveCount = G.players.filter(p => p.alive).length;
+  document.getElementById('alive-count').textContent = aliveCount + '/' + G.players.length;
+}
+
+function renderHeatBar(p) {
+  const aliveHeats = G.players.filter(x => x.alive).map(x => x.heat);
+  const maxHeat = Math.max(1, ...aliveHeats);
+  const ratio = Math.min(1, p.heat / maxHeat);
+  const pct = Math.round(ratio * 100);
+  let cls = 'cool', label = 'CLEAR';
+  if (ratio >= 0.7) { cls = 'hot';  label = 'BURNING'; }
+  else if (ratio >= 0.35) { cls = 'warm'; label = 'WARM'; }
+  if (p.heat === 0) { label = '—'; }
+  return `
+    <div class="heat-bar"><div class="heat-fill ${cls}" style="width:${pct}%"></div></div>
+    <div class="heat-label ${cls}">HEAT · ${label}</div>
+  `;
+}
+
+function renderActions() {
+  const host = document.getElementById('action-buttons');
+  host.innerHTML = '';
+  if (G.spectator) {
+    const note = document.createElement('div');
+    note.style.cssText = 'text-align:center;font-style:italic;color:#9b8ec4;font-size:0.8rem;padding:4px 0 8px;';
+    note.textContent = '👁 You are a ghost in the room.';
+    host.appendChild(note);
+    const join = document.createElement('button');
+    join.className = 'action-btn gold';
+    join.textContent = '→ JOIN A REAL GAME';
+    join.onclick = () => { quitGame(); showModal(); };
+    host.appendChild(join);
+    return;
+  }
+  if (!G.you.alive) {
+    host.innerHTML = '<div style="text-align:center;font-style:italic;color:var(--muted);font-size:0.85rem;padding:8px;">You are dead. Watch and learn.</div>';
+    return;
+  }
+  if (G.phase === 'DAY') {
+    const btn = document.createElement('button');
+    btn.className = 'action-btn gold';
+    btn.textContent = '⚖ CALL VOTE';
+    btn.onclick = callVote;
+    host.appendChild(btn);
+  }
+  if (G.you.role === 'ORACLE' && !G.you.abilityUsed) {
+    const note = document.createElement('div');
+    note.style.cssText = 'text-align:center;font-style:italic;color:#9b8ec4;font-size:0.8rem;padding:4px;';
+    note.textContent = '👁 Your vision is unspent.';
+    host.appendChild(note);
+  }
+}
+
+/* ----------------- CHAT / LOG ----------------- */
+function chatMsg(author, text) {
+  G.chat.push({ kind:'player', authorId: author.id, text });
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'msg' + (author.isYou ? ' you' : '');
+  div.innerHTML = `
+    <div class="msg-author"><span class="av">${author.avatar}</span> ${author.name}</div>
+    <div class="msg-bubble">${escapeHtml(text)}</div>
+  `;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+
+  // Heat tracking — any other living player whose name appears in the text gets +1 heat.
+  const upper = text.toUpperCase();
+  let dirty = false;
+  G.players.forEach(p => {
+    if (!p.alive || p.id === author.id) return;
+    if (upper.includes(p.name)) { p.heat += 1; dirty = true; }
+  });
+  if (dirty) renderPlayers();
+}
+
+function systemMsg(text, variant) {
+  G.chat.push({ kind:'system', text, variant });
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'msg system' + (variant ? ' ' + variant : '');
+  div.innerHTML = `<div class="msg-bubble">${escapeHtml(text)}</div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function logEvent(text, cls) {
+  G.log.push({ text, cls });
+  const list = document.getElementById('game-log-list');
+  const div = document.createElement('div');
+  div.className = 'log-entry' + (cls ? ' ' + cls : '');
+  div.textContent = '› ' + text;
+  list.appendChild(div);
+  list.scrollTop = list.scrollHeight;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+/* =============================================================
+   SFX — procedural Web Audio sound effects
+   No external assets. Lazy-init on first user gesture.
+   ============================================================= */
+const SFX = (function () {
+  let ctx = null;
+  let masterGain = null;
+  let muted = false;
+  try { muted = localStorage.getItem('syndicate_muted') === '1'; } catch (e) {}
+
+  function init() {
+    if (ctx) return ctx;
+    try {
+      const Ctor = window.AudioContext || window.webkitAudioContext;
+      if (!Ctor) return null;
+      ctx = new Ctor();
+      masterGain = ctx.createGain();
+      masterGain.gain.value = muted ? 0 : 0.45;
+      masterGain.connect(ctx.destination);
+    } catch (e) { ctx = null; }
+    return ctx;
+  }
+  function ensure() {
+    if (!init()) return false;
+    if (ctx.state === 'suspended') ctx.resume();
+    return !muted;
+  }
+  function setMuted(v) {
+    muted = !!v;
+    try { localStorage.setItem('syndicate_muted', muted ? '1' : '0'); } catch (e) {}
+    if (masterGain) masterGain.gain.value = muted ? 0 : 0.45;
+  }
+  function isMuted() { return muted; }
+
+  function tone(o) {
+    if (!ensure()) return;
+    const t0 = ctx.currentTime + (o.delay || 0);
+    const dur = o.duration || 0.3;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = o.type || 'sine';
+    osc.frequency.setValueAtTime(o.freq, t0);
+    if (o.freqEnd) osc.frequency.exponentialRampToValueAtTime(Math.max(o.freqEnd, 1), t0 + dur);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(o.volume || 0.2, t0 + (o.attack || 0.005));
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g).connect(masterGain);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.05);
+  }
+
+  function noise(o) {
+    if (!ensure()) return;
+    const t0 = ctx.currentTime + (o.delay || 0);
+    const dur = o.duration || 0.3;
+    const buf = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * dur)), ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = o.lowpass || 2000;
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = o.highpass || 0;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(o.volume || 0.2, t0 + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(hp).connect(lp).connect(g).connect(masterGain);
+    src.start(t0);
+    src.stop(t0 + dur + 0.05);
+  }
+
+  return {
+    init, setMuted, isMuted,
+    // Phase: bright C-major shimmer
+    day() {
+      tone({ freq: 523.25, duration: 0.55, volume: 0.18 });
+      tone({ freq: 659.25, duration: 0.55, volume: 0.13, delay: 0.04 });
+      tone({ freq: 783.99, duration: 0.65, volume: 0.10, delay: 0.08 });
+    },
+    // Phase: tolling bell
+    vote() {
+      tone({ freq: 220, duration: 1.2, volume: 0.22 });
+      tone({ freq: 440, duration: 1.0, type: 'triangle', volume: 0.13 });
+      tone({ freq: 880, duration: 0.6, volume: 0.08 });
+      noise({ duration: 0.05, volume: 0.10, lowpass: 4000, highpass: 1500 });
+    },
+    // Phase: ominous low descending howl
+    night() {
+      tone({ freq: 110, freqEnd: 50, duration: 1.6, type: 'sawtooth', volume: 0.13 });
+      tone({ freq: 165, freqEnd: 78, duration: 1.4, type: 'triangle', volume: 0.08, delay: 0.1 });
+    },
+    // Sub thud + noise burst
+    kill() {
+      tone({ freq: 80, freqEnd: 28, duration: 0.4, volume: 0.45 });
+      noise({ duration: 0.28, volume: 0.20, lowpass: 700 });
+    },
+    // Heavy gavel: woody clack + low body
+    banish() {
+      tone({ freq: 200, freqEnd: 70, duration: 0.42, type: 'square', volume: 0.18 });
+      noise({ duration: 0.18, volume: 0.22, lowpass: 1500, highpass: 350 });
+      tone({ freq: 60, duration: 0.35, volume: 0.32, delay: 0.02 });
+    },
+    // Triumphant ascending major chord
+    victoryLoyalist() {
+      const seq = [261.63, 329.63, 392.00, 523.25];
+      seq.forEach((f, i) => tone({ freq: f, duration: 0.7, type: 'triangle', volume: 0.18, delay: i * 0.12 }));
+      tone({ freq: 130.81, duration: 1.4, volume: 0.15, delay: 0.4 });
+    },
+    // Menacing minor descent
+    victoryTraitor() {
+      const seq = [220, 196, 174.61, 130.81];
+      seq.forEach((f, i) => tone({ freq: f, duration: 0.7, type: 'sawtooth', volume: 0.13, delay: i * 0.13 }));
+      tone({ freq: 65.41, duration: 1.4, type: 'square', volume: 0.10, delay: 0.4 });
+    },
+    // Subtle UI tick
+    click() {
+      tone({ freq: 1200, duration: 0.05, type: 'square', volume: 0.07 });
+    },
+    // Confirmation chord
+    confirm() {
+      tone({ freq: 440, duration: 0.13, type: 'triangle', volume: 0.18 });
+      tone({ freq: 660, duration: 0.16, type: 'triangle', volume: 0.12, delay: 0.05 });
+    },
+    // Mystic ascending shimmer for Oracle vision
+    oracle() {
+      const seq = [659.25, 783.99, 987.77, 1318.51];
+      seq.forEach((f, i) => tone({ freq: f, duration: 0.4, volume: 0.10, delay: i * 0.07 }));
+    },
+    // Eerie filtered whisper
+    whisper() {
+      noise({ duration: 0.7, volume: 0.10, lowpass: 800, highpass: 200 });
+      tone({ freq: 200, freqEnd: 380, duration: 0.5, volume: 0.05 });
+    },
+    // Slow heartbeat for Last Words
+    heartbeat() {
+      tone({ freq: 60, duration: 0.18, volume: 0.28 });
+      tone({ freq: 60, duration: 0.18, volume: 0.22, delay: 0.22 });
+    },
+  };
+})();
+
+function toggleMute() {
+  SFX.init();
+  SFX.setMuted(!SFX.isMuted());
+  const btn = document.getElementById('mute-btn');
+  if (btn) btn.textContent = SFX.isMuted() ? '🔇' : '🔊';
+}
+// Sync mute button text on load
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('mute-btn');
+  if (btn) btn.textContent = SFX.isMuted() ? '🔇' : '🔊';
+});
+</script>
+</body>
+</html>
